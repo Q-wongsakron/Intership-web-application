@@ -1,8 +1,8 @@
 *,
 ::before,
 ::after {
-	margin: 0;
-	padding: 0;
+	margin: 0rem;
+	padding: 0rem;
 	box-sizing: border-box;
 	list-style: none;
 	text-decoration: none;
@@ -23,12 +23,29 @@
 	gap: 1rem;
 	/* border: 2px solid red; */
 }
+.navbar li.nav-item button {
+	width: 100%;
+	text-align: start;
+}
 .navbar li.nav-item {
 	white-space: nowrap;
 }
-.navbar li.active {
+/* .navbar li.active {
 	color: var(--dark-blue);
+} */
+.navbar-toggler,
+.navbar-toggler.collapsed {
+	margin-left: auto;
 }
+#navbarNavDropdown {
+	padding: 10px;
+}
+/* .my-dropdown:hover > .dropdown-menu {
+	display: block;
+}
+.my-dropdown > .dropdown-toggle:active {
+	pointer-events: none;
+} */
 
 /* FOOTER */
 footer {
@@ -43,26 +60,35 @@ footer {
 /* HOME PAGE */
 /* JOB COMPONENT */
 .job-card {
-	display: flex;
 	margin-bottom: 0.9375rem;
 	padding: 0.65rem;
 	color: var(--black);
 	border: 1px solid var(--border-color);
 	border-radius: 0.5rem;
 }
-.job-card img {
+.job-card:hover {
+	outline: 2px solid var(--light-blue);
+}
+.job-card:hover .job-card-title {
+	color: var(--dark-blue);
+}
+
+.job-card-img img {
 	max-width: 100%;
+	min-width: 120px;
 	height: auto;
 	border-radius: 0.5rem;
+	overflow: hidden;
 }
 .job-card-details {
 	flex-grow: 1;
-	padding: 0 15px;
+	padding: 0;
 }
 .job-actions {
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
+	align-items: end;
+	height: 100%;
 }
 .job-actions p {
 	margin-bottom: auto;
@@ -74,9 +100,88 @@ footer {
 
 .login_card {
 	width: auto;
-	height: 600px;
+	/* height: 600px; */
 	font-weight: 600;
 	background-color: var(--white);
 	border-radius: 0.5rem;
 	box-shadow: #63636333 0px 2px 4px 0px;
+}
+
+/* SCROLL TO TOP BUTTON */
+.scrollToTopBtn {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	margin: 1rem;
+	width: 50px;
+	height: 50px;
+	background: var(--light-grey);
+	border: 1px solid var(--light-grey);
+	color: var(--black);
+	filter: opacity(60%);
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+	cursor: pointer;
+	z-index: 1;
+}
+.scrollToTopBtn:hover {
+	background: var(--light-blue);
+	border: 1px solid var(--light-blue);
+	color: var(--white);
+	filter: opacity(100%);
+}
+
+/* ALERT BOX */
+.alert-box {
+	position: fixed;
+	bottom: 5rem;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 10px;
+	border-radius: 5px;
+	text-align: center;
+	background-color: var(--white);
+	color: var(--light-grey);
+	border: 1px solid var(--border-color);
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+	pointer-events: none;
+	z-index: 1000;
+	opacity: 1;
+	transition: opacity 0.5s ease-in-out;
+}
+.alert-box.hidden {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* CONTAINER CARD */
+.container-card {
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+}
+
+/* MEDIA QUERIES */
+@media screen and (max-width: 1140px) {
+	.navbar ul.navbar-nav {
+		font-size: 0.875rem;
+	}
+}
+
+/* X-Small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+}
+
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767.98px) {
+}
+
+/* Medium devices (tablets, less than 992px) */
+@media (max-width: 991.98px) {
+}
+
+/* Large devices (desktops, less than 1200px) */
+@media (max-width: 1199.98px) {
+}
+
+/* X-Large devices (large desktops, less than 1400px) */
+@media (max-width: 1399.98px) {
 }

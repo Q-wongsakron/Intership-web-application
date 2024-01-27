@@ -78,8 +78,8 @@ function ExLogin() {
 	};
 
 	return (
-		<div className="bg-light">
-			<div className="container p-5 h-100">
+		<div className="bg-light h-100">
+			<div className="container p-5">
 				<div className="row justify-content-center align-items-center h-100">
 					<div className="col-12 col-md-8 col-lg-6 col-xl-5 h-100">
 						<div className={`login_card h-100`}>

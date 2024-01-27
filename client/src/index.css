@@ -24,21 +24,45 @@
 }
 
 a {
+	color: var(--light-blue);
+	transition: all 0.2s ease;
+	text-decoration: none;
+}
+a:hover {
+	color: var(--dark-blue);
 	text-decoration: none;
 }
 
 body {
-	height: 100%;
-	min-height: 100vh;
 	font-family: "BaiJamjuree";
 }
 
-.container {
-	min-height: 100vh;
+.app {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	height: 100vh;
 }
-#test {
-	height: 100%;
-	min-height: 100vh;
+.container {
+	flex: 1;
+}
+.container-fluid {
+	flex: 1;
+	/* padding: 0; */
+}
+
+/* .container {
+	min-height: 84%;
+}
+.container-fluid {
+	padding: 0;
+	margin: 0 auto;
+	min-height: 84%;
+} */
+
+.img-fluid {
+	max-width: 100%;
+	height: auto;
 }
 
 button {
@@ -47,7 +71,7 @@ button {
 	font-size: 1em;
 	border-radius: 6px;
 	cursor: pointer;
-	transition: all 0.5s;
+	transition: all 0.4s;
 	/* letter-spacing: 0.5px; */
 	/* outline: none; */
 }
@@ -79,6 +103,35 @@ button:focus-visible {
 
 .card {
 	border: 1px solid var(--border-color);
+}
+
+/* SIDEBAR */
+.sidebar {
+	/* height: 100%; */
+	overflow-y: hidden;
+	overflow-x: hidden;
+}
+.sidebar.sticky {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0;
+}
+.sidebar .nav-link {
+	transition: all 0.2s ease;
+}
+.sidebar .nav-link:hover {
+	background: var(--border-color);
+}
+.sidebar .nav-link.active {
+	color: var(--white);
+	/* background: var(--light-blue); */
+	background: rgb(6, 180, 228);
+	background: linear-gradient(
+		90deg,
+		rgba(6, 180, 228, 1) 0%,
+		rgba(6, 180, 228, 1) 60%,
+		rgba(248, 249, 250, 1) 100%
+	);
 }
 
 /* :root {

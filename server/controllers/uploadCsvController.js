@@ -1,6 +1,8 @@
 // controllers/csvController.js
 
-const StudentsCsv = require("../models/studentCsvModel");
+const db = require("../db/index");
+const { studentCsv } = db;
+db.sequelize.sync();
 
 exports.upload = async (req, res) => {
   try {
@@ -33,10 +35,14 @@ exports.upload = async (req, res) => {
 
         // Check if username is valid (not undefined or null)
         if (username) {
-          const countResult = await StudentsCsv.searchStudentByName(username);
+          const countResult = await studentCsv.findOne({
+            where: { username: username },
+          });
 
-          if (countResult && countResult[0][0].count === 0) {
-            await StudentsCsv.addStudent(username);
+          if (!countResult) {
+            await studentCsv.create({
+              username: username,
+            });
             console.log(`Student '${username}' added to the database`);
           } else {
             console.log(`Student '${username}' already exists in the database`);

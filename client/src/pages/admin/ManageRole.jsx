@@ -25,10 +25,10 @@ const ManageUser = () => {
   };
 
   const role = ["student", "employer"];
-  const handleChangeRole = async (id, e) => {
-    console.log(id, e.target.value);
+  const handleChangeRole = async (std_id, e) => {
+    console.log(std_id, e.target.value);
     const value = {
-      id: id,
+      std_id: std_id,
       role: e.target.value,
     };
     await chaneRole(user.user.token, value)
@@ -46,48 +46,46 @@ const ManageUser = () => {
 
   return (
     <>
-      <div className="container p-5">
-        <h1>AllUserList Page</h1>
+      <h1>AllUserList Page</h1>
 
-        <br />
+      <br />
 
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">ชื่อผู้ใช้</th>
-              <th scope="col">ROLE</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data
-              ? data.map((item, index) => (
-                  <tr key={index}>
-                    <th scope="row">{index + 1}</th>
-                    <td>{item.username}</td>
-                    <td>{item.role}</td>
-                    <td>
-                      <select
-                        onChange={(e) => handleChangeRole(item.id, e)}
-                        value={item.role}
-                        className="form-select"
-                        style={{ width: "100px" }}
-                      >
-                        {role.map((roleItem) => (
-                          <option key={roleItem} value={roleItem}>
-                            {roleItem}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))
-              : null}
-          </tbody>
-        </table>
+      <table className="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">ชื่อผู้ใช้</th>
+            <th scope="col">ROLE</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data
+            ? data.map((item, index) => (
+                <tr key={index}>
+                  <th scope="row">{index + 1}</th>
+                  <td>{item.std_id}</td>
+                  <td>{item.role}</td>
+                  <td>
+                    <select
+                      onChange={(e) => handleChangeRole(item.std_id, e)}
+                      value={item.role}
+                      className="form-select"
+                      style={{ width: "100px" }}
+                    >
+                      {role.map((roleItem) => (
+                        <option key={roleItem} value={roleItem}>
+                          {roleItem}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))
+            : null}
+        </tbody>
+      </table>
 
-        <Link to={"/admin"}>Go Back</Link>
-      </div>
+      <Link to={"/admin"}>Go Back</Link>
     </>
   );
 };

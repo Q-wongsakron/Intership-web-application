@@ -5,11 +5,13 @@ export default function NavDropdown({
 	title,
 	items,
 	buttonClassName,
+	ddMenu,
+	ddItem,
 	logoutItem,
 }) {
 	return (
 		<>
-			<li className="nav-item dropdown-center">
+			<li className="nav-item dropdown-center my-dropdown">
 				<button
 					className={`${buttonClassName} dropdown-toggle`}
 					type="button"
@@ -18,10 +20,13 @@ export default function NavDropdown({
 				>
 					{title}
 				</button>
-				<ul className="dropdown-menu dropdown-menu-end">
+				<ul className={`dropdown-menu dropdown-menu-end ${ddMenu}`}>
 					{items.map((item, index) => (
 						<li key={index}>
-							<Link className="dropdown-item" to={item.href ? item.href : "#"}>
+							<Link
+								className={`dropdown-item ${ddItem}`}
+								to={item.href ? item.href : ""}
+							>
 								{item.label}
 							</Link>
 						</li>
