@@ -1,10 +1,26 @@
 // controllers/csvController.js
+const path = require("path");
+const fs = require("fs");
 
 const db = require("../db/index");
-const { studentCsv } = db;
+const { studentCsv, file_student } = db;
 db.sequelize.sync();
 
-exports.upload = async (req, res) => {
+exports.uploadFileSlide = async (req, res) => {
+  try {
+    const uploadFile = await file_student.create({
+      name: req.file.originalname,
+      file_type: req.file.mimetype,
+      file_url: `uploads/${req.file.originalname}`,
+    });
+    res.send("Image Upload Successfully");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Image Upload Failed" });
+  }
+};
+
+exports.uploadcsv = async (req, res) => {
   try {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).json({ error: "No files were uploaded." });

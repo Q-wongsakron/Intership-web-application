@@ -1,11 +1,16 @@
 const express = require("express");
 const { auth } = require("../middleware/auth");
 const {
-  getProfile,
-  updateProfile,
+  getProfileStudent,
+  getProfileEmployer,
+  updateProfileStudent,
+  updateProfileEmployer,
 } = require("../controllers/profileController");
 const router = express.Router();
 
-router.get("/profile", auth, getProfile);
-router.put("/updateprofile", auth, updateProfile);
+router.get("/profileStudent", auth, getProfileStudent);
+router.get("/profileEmployer/:id", getProfileEmployer);
+router.put("/updateProfileStudent", auth, updateProfileStudent);
+router.put("/updateProfileEmployer", auth, updateProfileEmployer);
+
 module.exports = router;

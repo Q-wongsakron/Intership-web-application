@@ -1,6 +1,6 @@
 const { Sequelize } = require("sequelize");
 
-const sequelize = new Sequelize("internship32", "root", "", {
+const sequelize = new Sequelize("internship2", "root", "", {
   host: "localhost",
   dialect: "mysql",
   define: {
@@ -17,7 +17,7 @@ db.admin = require("./models/adminModel")(sequelize, Sequelize);
 db.student = require("./models/studentModel")(sequelize, Sequelize);
 db.employer = require("./models/employerModel")(sequelize, Sequelize);
 db.studentCsv = require("./models/studentCsvModel")(sequelize, Sequelize);
-
+db.file_student = require("./models/fileStudentModel")(sequelize, Sequelize);
 db.posts_job = require("./models/postWorkModel")(sequelize, Sequelize);
 
 db.employer.hasMany(db.posts_job, {

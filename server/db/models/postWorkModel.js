@@ -18,10 +18,45 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "location",
       },
-      skill: {
-        type: Sequelize.STRING(255),
+      subdistrict: {
+        type: Sequelize.STRING(100),
         allowNull: false,
-        field: "skill",
+        field: "subdistrict",
+      },
+      district: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "district",
+      },
+      province: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "province",
+      },
+      country: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "country",
+      },
+      pcode: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "pcode",
+      },
+      contact_email: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "contact_email",
+      },
+      contact_tel: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "contact_tel",
+      },
+      position_num: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        field: "position_num",
       },
       work_hours: {
         type: Sequelize.STRING(255),

@@ -9,5 +9,5 @@ const router = express.Router();
 
 router.get("/listPosts", getPosts);
 router.post("/addPost", auth, addPost);
-router.get("/Post/:id", getPost);
+router.get("/post/:id", getPost);
 module.exports = router;

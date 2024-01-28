@@ -3,7 +3,7 @@ module.exports = (sequelize, Sequelize) => {
     "student",
     {
       std_id: {
-        type: Sequelize.INTEGER(20),
+        type: Sequelize.STRING(11),
         primaryKey: true,
         autoIncrement: false,
         field: "std_id",

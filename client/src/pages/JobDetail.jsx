@@ -14,7 +14,7 @@ export default function JobDetail() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5500/api/Post/${params.jobId}`
+          `http://localhost:5500/api/post/${params.jobId}`
         );
 
         if (response.status >= 200 && response.status < 300) {
