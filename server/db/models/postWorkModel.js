@@ -68,6 +68,11 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "salary",
       },
+      welfare: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        field: "welfare",
+      },
       contract: {
         type: Sequelize.STRING(255),
         allowNull: false,
