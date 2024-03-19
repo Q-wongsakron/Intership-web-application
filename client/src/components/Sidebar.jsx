@@ -57,10 +57,15 @@ export default function Sidebar() {
 				{ id: 1, label: "จัดการสิทธิ์?", href: "/admin" },
 				{ id: 2, label: "upload-csv", href: "/admin/upload-csv" },
 				{ id: 3, label: "change-role", href: "/admin/change-role" },
+				{ id: 4, label: "ประชาสัมพันธ์", href: "/admin/create-news" },
+				{ id: 5, label: "ตั้งค่าหนังสือขอความอนุเคราะห์", href: "/admin/setup-docs" },
+				{ id: 6, label: "อนุมัติเอกสาร", href: "/admin/approve-docs" },
+				{ id: 7, label: "สถานะนักศึกษา", href: "/admin/student-mornitor" },
+				{ id: 8, label: "แก้ไขกำหนดการ", href: "/admin/update-scheduler" },
 			];
 		} else if (user.user.role === "student") {
 			sidebarItems1 = [
-				{ id: 1, label: "สถานะการฝึกงาน", href: "/student" },
+				{ id: 1, label: "การฝึกงานของฉัน", href: "/student/internship" },
 				{ id: 2, label: "ข้อมูลที่ฝึกงาน", href: "/student/my-employer" },
 				{ id: 3, label: "อัปโหลดเอกสาร", href: "/student/upload" },
 				{ id: 4, label: "ทำแบบประเมิน", href: "/student/evaluation" },
@@ -69,10 +74,15 @@ export default function Sidebar() {
 			sidebarItems2 = [
 				{ id: 1, label: "ยื่นที่ฝึกงานเอง", href: "/student/self-enroll" },
 				{ id: 2, label: "โปรไฟล์", href: "/student/profile" },
+				{ id: 3, label: "เเก้ไขโปรไฟล์", href: "/student/profile/edit" },
 			];
 		} else if (user.user.role === "employer") {
 			sidebarItems1 = [
-				{ id: 1, label: "นักศึกษาที่สมัครฝึกงาน", href: "/employer" },
+				{
+					id: 1,
+					label: "นักศึกษาที่สมัครฝึกงาน",
+					href: "/employer/application",
+				},
 				{
 					id: 2,
 					label: "นักศึกษาที่รับฝึกงานแล้ว",
@@ -82,9 +92,10 @@ export default function Sidebar() {
 				{ id: 4, label: "ทำแบบประเมินนักศึกษา", href: "/employer/evaluation" },
 			];
 			sidebarItems2 = [
-				{ id: 1, label: "+ ประกาศรับฝึกงาน", href: "/employer/create-post" },
+				{ id: 1, label: "+ ประกาศรับฝึกงาน", href: "/employer/create-job" },
 				{ id: 2, label: "โพสต์ทั้งหมด", href: "/employer/all-job" },
 				{ id: 3, label: "โปรไฟล์", href: "/employer/profile" },
+				{ id: 4, label: "เเก้ไขโปรไฟล์", href: "/employer/profile/edit" },
 			];
 		}
 	} else {

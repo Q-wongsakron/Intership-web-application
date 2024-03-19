@@ -59,7 +59,9 @@ const AdminRoute = ({ children }) => {
 						<Sidebar />
 					</div>
 					<div className="col-12 col-md-9 col-xl-10">
-						<div className="container py-5 px-md-5 h-100">{children}</div>
+						<div className="container py-5 px-3 px-md-4 px-lg-5 h-100">
+							{children}
+						</div>
 					</div>
 				</div>
 			</div>

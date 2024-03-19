@@ -3,15 +3,25 @@ module.exports = (sequelize, Sequelize) => {
     "student",
     {
       std_id: {
-        type: Sequelize.INTEGER(20),
+        type: Sequelize.STRING(11),
         primaryKey: true,
         autoIncrement: false,
         field: "std_id",
+      },
+      name_title_th: {
+        type: Sequelize.STRING(50),
+        allowNull: true,
+        field: "name_title_th",
       },
       displayname_th: {
         type: Sequelize.STRING(100),
         allowNull: false,
         field: "displayname_th",
+      },
+      name_title_en: {
+        type: Sequelize.STRING(50),
+        allowNull: true,
+        field: "name_title_en",
       },
       displayname_en: {
         type: Sequelize.STRING(100),
@@ -22,6 +32,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(100),
         allowNull: false,
         field: "email",
+      },
+      tel: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        field: "tel",
       },
       department: {
         type: Sequelize.STRING(100),
@@ -58,6 +73,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(55),
         allowNull: false,
         field: "role",
+      },
+      resume: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        field: "resume",
       },
     },
     {

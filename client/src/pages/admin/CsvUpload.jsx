@@ -34,11 +34,6 @@ const CsvUploader = () => {
 
 	return (
 		<>
-			{/* <h2>CSV Uploader</h2>
-      <input type="file" accept=".csv" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload CSV</button>
-      {message && <p>{message}</p>} */}
-
 			<div className="container p-3 p-sm-4 mt-4 container-card uploadCsvFileCard">
 				<div className="d-flex justify-content-between">
 					<h3 className="uploadCsvFileTitle mb-3 fw-bold">
@@ -47,7 +42,7 @@ const CsvUploader = () => {
 				</div>
 				<div className="row">
 					<div className="col-12 col-sm-9 csvFileUploader">
-						<label for="csvFileUploader" className="form-label">
+						<label htmlFor="csvFileUploader" className="form-label">
 							อัปโหลดไฟล์ .csv
 						</label>
 						<input

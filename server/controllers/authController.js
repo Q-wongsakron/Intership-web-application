@@ -62,6 +62,7 @@ exports.loginStudent = async (req, res) => {
         user: {
           username: username,
           role: type,
+          status: userExists.status,
         },
       };
       jwt.sign(payload, secret, { expiresIn: "1d" }, (err, token) => {
@@ -72,6 +73,7 @@ exports.loginStudent = async (req, res) => {
       res.status(401).json({ message: "Authentication failed" });
     }
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
     // const errMesg = err.response.data.Description;
     // res.status(err.response.status).json({ message: errMesg });
@@ -157,7 +159,7 @@ exports.registerEmployer = async (req, res) => {
       subdistrict,
       district,
       province,
-      country,
+
       pcode,
       contact_name,
       contact_email,
@@ -183,7 +185,7 @@ exports.registerEmployer = async (req, res) => {
         subdistrict: subdistrict,
         district: district,
         province: province,
-        country: country,
+
         pcode: pcode,
         contact_name: contact_name,
         contact_email: contact_email,
@@ -199,7 +201,7 @@ exports.registerEmployer = async (req, res) => {
           subdistrict: subdistrict,
           district: district,
           province: province,
-          country: country,
+
           pcode: pcode,
           contact_name: contact_name,
           contact_email: contact_email,
@@ -221,7 +223,7 @@ exports.getCurrentUser = async (req, res) => {
     let currentUserRole = req.user.role;
     if (currentUserRole === "student") {
       let userStudent = await student.findOne({
-        where: { stdID: req.user.username },
+        where: { std_id: req.user.username },
       });
       res.send(userStudent);
     } else if (currentUserRole === "admin") {

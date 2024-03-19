@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import btn from "../../components/btn.module.css";
+import PageNotFound from "../PageNotFound";
 
 import { adminLogin as login } from "../../services/auth.service";
 import { useNavigate, Link } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 import { login as loginRedux } from "../../store/userSlice";
+
+import { useSelector } from "react-redux/es/hooks/useSelector";
 
 function AdminLogin() {
 	const [errorMessage, setErrorMessage] = useState(null);
@@ -70,7 +73,9 @@ function AdminLogin() {
 		}
 	};
 
-	return (
+	const { user } = useSelector((state) => ({ ...state }));
+
+	return !(user && user.user.token) ? (
 		<div className="bg-light h-100">
 			<div className="container p-5">
 				<div className="row justify-content-center align-items-center h-100">
@@ -138,6 +143,10 @@ function AdminLogin() {
 				</div>
 			</div>
 		</div>
+	) : user.user.role === "admin" ? (
+		<PageNotFound />
+	) : (
+		<PageNotFound />
 	);
 }
 

@@ -9,4 +9,5 @@ module.exports = {
   database: process.env.DATABASE,
   secret: process.env.JWT_SECRET,
   apiToken: process.env.REGTU_API_TOKEN,
+  smtpPass: process.env.SMTP_PASS
 };

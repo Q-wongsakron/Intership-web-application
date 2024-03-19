@@ -67,6 +67,39 @@
 	box-shadow: var(--light-blue) 0px 0px 0px 3px;
 }
 
+.btn_red {
+	white-space: nowrap;
+	color: var(--white);
+	background-color: var(--faculty-red);
+	border: 1px solid var(--faculty-red);
+}
+.btn_red:hover {
+	color: var(--white);
+	background-color: var(--dark-faculty-red);
+}
+.btn_red:focus {
+	color: var(--white);
+	background-color: var(--dark-faculty-red);
+	box-shadow: var(--faculty-red) 0px 0px 0px 3px;
+}
+
+.btn_red_outline {
+	white-space: nowrap;
+	color: var(--faculty-red);
+	background-color: var(--white);
+	border: 1px solid var(--faculty-red);
+}
+.btn_red_outline:hover {
+	color: var(--white);
+	background-color: var(--faculty-red);
+	border: 1px solid var(--faculty-red);
+}
+.btn_red_outline:focus {
+	color: var(--white);
+	background-color: var(--faculty-red);
+	box-shadow: var(--faculty-red) 0px 0px 0px 3px;
+}
+
 /* DROPDOWN (-*-) */
 .dropdown_menu_grey {
 	margin-top: 5px;

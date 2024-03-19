@@ -1,37 +1,59 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useParams, Link } from "react-router-dom";
 
 import Job from "../components/Job";
-
 import btn from "../components/btn.module.css";
+import employerDefaultImg from "../assets/employer_default_img.png";
+import Loading from "../components/Loading";
+import PageNotFound from "./PageNotFound";
+
+import { getEmployerProfileId as getEmployerProfile } from "../services/user.service";
 
 function EmployerProfile() {
-	// must get employer job data from database here?
-	const mockupObject = {
-		title: "รับนักศึกษาฝึกงาน ตำแหน่ง x, y, z",
-		company: "com x",
-		place: "bkk",
-		allowance: 100,
-		positions: ["full-stack (3)", "front-end (1)", "back-end (2)"],
-		created: "xx/xx/xxxx",
+	const params = useParams();
+
+	const [data, setData] = useState(null);
+	const [loading, setLoading] = useState(true);
+
+	// const { user } = useSelector((state) => ({ ...state }));
+
+	const fetchData = async () => {
+		try {
+			const response = await getEmployerProfile(params.employerId);
+			const employer = response.data;
+
+			if (employer) {
+				setData(employer);
+			} else {
+				setData(null);
+			}
+		} catch (error) {
+			console.log(
+				"Load data failed: ",
+				error.response ? error.response.data : error.message
+			);
+		} finally {
+			setLoading(false);
+		}
 	};
 
-	const duplicatedObjects = [];
+	useEffect(() => {
+		setLoading(true);
+		fetchData();
+	}, [params.employerId]);
 
-	let nextId = 1;
-
-	const numberOfDuplicates = 4;
-
-	for (let i = 0; i < numberOfDuplicates; i++) {
-		const copy = { ...mockupObject };
-		copy.id = nextId;
-		nextId++;
-
-		duplicatedObjects.push(copy);
+	if (loading) {
+		return <Loading />;
 	}
+	if (!data) {
+		return <PageNotFound />;
+	}
+
 	return (
 		<>
 			<div className="container p-2 p-lg-3 p-xl-5 mb-3 mb-xl-0">
-				<div className="container p-3 p-sm-4 container-card jobProfileDetailCard">
+				<div className="container p-2 p-sm-4 container-card employerProfileDetailCard bg-light-blue">
 					{/* <div className="d-flex justify-content-between">
 						<h3 className="std-profile-title mb-3 fw-bold">ข้อมูลของฉัน</h3>
 						<button className="btn btn-secondary d-none">แก้ไขข้อมูล</button>
@@ -39,45 +61,62 @@ function EmployerProfile() {
 
 					<div className="row">
 						<div className="col-12">
-							<div className="jobProfileDetail px-2 pt-3">
-								<div className="d-flex justify-content-between">
-									<div className="row jobTitle">
-										<div className="col-6 mb-3 mb-md-0 job-card-img">
-											<img
-												src="https://picsum.photos/120"
-												alt="Company Logo Image"
-												className="img-fluid"
-											/>
+							<div className="employerProfileDetail px-2 pt-3">
+								<div className="d-flex justify-content-start">
+									<div className="d-flex flex-row employerTitle">
+										<div className="employer-card-img">
+											<div className="job-card-img mb-3 mb-md-0 me-3">
+												<img
+													src={
+														data.profile.company_pic
+															? data.profile.company_pic
+															: employerDefaultImg
+													}
+													alt="Company Logo Image"
+													className="img-fluid"
+												/>
+											</div>
 										</div>
-										<div className="col-6 jobTitleText">
-											<p className="fw-bold">บริษัท x</p>
-											<h6>ประเภทธุรกิจ : x</h6>
+										<div className="employerTitleText">
+											{data ? (
+												<h4 className="fw-bold">{data.profile.company_name}</h4>
+											) : (
+												<p className="text-muted">กำลังโหลดข้อมูล...</p>
+											)}
 										</div>
 									</div>
-									<div className="mt-2 mt-sm-0 jobAction">
-										<button className={`${btn.btn_grey_outline}`}>
+									{/* <div className="mt-2 mt-sm-0 employerAction">
+										<button className={`btn btn-sm ${btn.btn_grey_outline}`}>
 											ดูเว็บไซต์
 										</button>
-									</div>
+									</div> */}
 								</div>
 								<div className="row mt-4">
-									<div className="col-sm-12 jobAbout">
+									<div className="col-sm-12 employerAbout">
 										<p className="fw-bold">เกี่ยวกับเรา</p>
-										<h6>
-											Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-											Corrupti natus distinctio amet vitae, ab culpa corporis at
-											incidunt suscipit. Laboriosam culpa dolores voluptas velit
-											officia unde, inventore expedita iusto dolorem.
-										</h6>
+										{data.profile.about ? (
+											<h6>{data.profile.about}</h6>
+										) : (
+											<p className="text-muted">-</p>
+										)}
 									</div>
 								</div>
 								<div className="row mt-4">
-									<div className="col-sm-12 jobLocation">
-										<p className="fw-bold">สถานที่ตั้ง</p>
-										<h6>
-											Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-											Vero, neque!
-										</h6>
+									<div className="col-sm-12 employerLocation">
+										<p className="fw-bold">ที่ตั้งบริษัท/หน่วยงาน</p>
+										{data ? (
+											<>
+												<h6>{data.profile.address} </h6>
+												<h6>
+													ตำบล/แขวง {data.profile.subdistrict}, อำเภอ/เขต{" "}
+													{data.profile.district}, จังหวัด{" "}
+													{data.profile.province}, รหัสไปรษณีย์{" "}
+													{data.profile.pcode}
+												</h6>
+											</>
+										) : (
+											<p className="text-muted">กำลังโหลดข้อมูล...</p>
+										)}
 									</div>
 								</div>
 							</div>
@@ -85,26 +124,62 @@ function EmployerProfile() {
 					</div>
 				</div>
 
-				<div className="container p-3 p-sm-4 mt-4 container-card employerJobCard">
+				<div className="container p-2 p-sm-4 mt-4 container-card employerJobCard">
 					<div className="d-flex justify-content-between mb-4">
-						<h3 className="employerJobTitle fw-bold">
+						<h4 className="employerJobTitle fw-bold">
 							ตำแหน่งฝึกงานที่เปิดรับ
-						</h3>
+						</h4>
 					</div>
+
 					<div className="employerJob">
-						{duplicatedObjects.map((item) => (
-							<div key={item.id} className="mb-2">
-								<Job
-									id={item.id}
-									title={item.title}
-									company={item.company}
-									place={item.place}
-									allowance={item.allowance}
-									positions={item.positions}
-									created={item.created}
-								/>
+						{data.post.length ? (
+							<>
+								{data.post
+									.slice()
+									.reverse()
+									.map((item) => (
+										<div key={item.job_id} className="mb-2">
+											<Job
+												key={item.job_id}
+												id={item.job_id}
+												img={data.profile.company_pic}
+												title={item.job_title}
+												company={data.profile.company_name}
+												location={item.location}
+												allowance={item.salary}
+												positions={
+													Array.isArray(item.cat)
+														? item.cat
+														: typeof item.cat === "string"
+														? JSON.parse(item.cat)
+														: []
+												}
+												startPost={item.dateStartPost}
+												endPost={item.dateEndPost}
+											/>
+										</div>
+									))}
+
+								{/* <div className="text-center mt-4">
+									<Link to={"/alljob"}>
+										<button className={`${btn.btn_blue} w-100`}>
+											ดูที่ฝึกงานทั้งหมด
+										</button>
+									</Link>
+								</div> */}
+							</>
+						) : (
+							<div className="d-flex flex-column justify-content-center align-items-center p-5 min-vh-50 text-muted bg-light container-card">
+								<h4>ยังไม่มีตำแหน่งฝึกงานที่เปิดรับในระบบ</h4>
+
+								<small>
+									- บริษัท/หน่วยงาน สามารถประกาศรับนักศึกษาฝึกงานได้ที่ :{" "}
+									<span className="text-light-blue">
+										<Link to={"/employer/create-job"}>+ ประกาศรับฝึกงาน</Link>
+									</span>
+								</small>
 							</div>
-						))}
+						)}
 					</div>
 				</div>
 			</div>

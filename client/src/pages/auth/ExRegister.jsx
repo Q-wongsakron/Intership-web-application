@@ -1,36 +1,27 @@
 import React, { useState } from "react";
-import styles from "../../components/btn.module.css";
-
-import { employerLogin as login } from "../../services/auth.service";
-import { employerRegister as register } from "../../services/auth.service";
 import { useNavigate, Link } from "react-router-dom";
-
-import PrivacyPolicyPopup from "../../components/PrivacyPolicyPopup";
+import {
+	ThailandAddressTypeahead,
+	ThailandAddressValue,
+	CustomSuggestion,
+} from "react-thailand-address-typeahead";
 
 import { useDispatch } from "react-redux";
 import { login as loginRedux } from "../../store/userSlice";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+
+import { employerLogin as login } from "../../services/auth.service";
+import { employerRegister as register } from "../../services/auth.service";
+
+import btn from "../../components/btn.module.css";
+import PageNotFound from "../PageNotFound";
+import PrivacyPolicyPopup from "../../components/PrivacyPolicyPopup";
 
 function ExRegister() {
 	const [errorMessage, setErrorMessage] = useState(null);
 
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-
-	// const data = new FormData(document.getElementById("external-register-form"));
-	// const form = {
-	// 	username: data.get("username"),
-	// 	password: data.get("password"),
-	// 	company_name: data.get("company_name"),
-	// 	address: data.get("address"),
-	// 	subdistrict: data.get("subdistrict"),
-	// 	district: data.get("district"),
-	// 	province: data.get("province"),
-	// 	country: data.get("country"),
-	// 	pcode: data.get("pcode"),
-	// 	contact_name: data.get("contact_name"),
-	// 	contact_email: data.get("contact_email"),
-	// 	contact_tel: data.get("contact_tel"),
-	// };
 
 	const [formData, setFormData] = useState({
 		username: "",
@@ -41,7 +32,7 @@ function ExRegister() {
 		subdistrict: "",
 		district: "",
 		province: "",
-		country: "",
+
 		pcode: "",
 		contact_name: "",
 		contact_email: "",
@@ -55,7 +46,7 @@ function ExRegister() {
 		subdistrict: formData.subdistrict,
 		district: formData.district,
 		province: formData.province,
-		country: formData.country,
+
 		pcode: formData.pcode,
 		contact_name: formData.contact_name,
 		contact_email: formData.contact_email,
@@ -70,7 +61,7 @@ function ExRegister() {
 		subdistrict: "",
 		district: "",
 		province: "",
-		country: "",
+
 		pcode: "",
 		contact_name: "",
 		contact_email: "",
@@ -106,6 +97,27 @@ function ExRegister() {
 		});
 		setErrorMessage("");
 	};
+	const handleThailandAddressChange = (newValue) => {
+		// Destructure the newValue object to extract the relevant values
+		const { subdistrict, district, province, postalCode } = newValue;
+
+		// Update the form data state with the new values
+		setFormData({
+			...formData,
+			subdistrict: subdistrict || "",
+			district: district || "", // Use empty string if value is undefined
+			province: province || "",
+			pcode: postalCode || "",
+		});
+
+		// Reset errors for all fields
+		setErrors({
+			district: "",
+			postalCode: "",
+			province: "",
+			subdistrict: "",
+		});
+	};
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -133,17 +145,14 @@ function ExRegister() {
 		if (!formData.company_name.trim()) {
 			newErrors.company_name = "กรุณากรอกชื่อบริษัท/หน่วยงานของท่าน";
 		}
-		if (!formData.country.trim()) {
-			newErrors.country = "กรุณากรอกประเทศ";
+		if (!formData.subdistrict.trim()) {
+			newErrors.subdistrict = "กรุณากรอกตำบล/แขวง";
+		}
+		if (!formData.district.trim()) {
+			newErrors.district = "กรุณากรอกอำเภอ/เขต";
 		}
 		if (!formData.province.trim()) {
 			newErrors.province = "กรุณากรอกจังหวัด";
-		}
-		if (!formData.district.trim()) {
-			newErrors.district = "กรุณากรอกอำเภอ";
-		}
-		if (!formData.subdistrict.trim()) {
-			newErrors.subdistrict = "กรุณากรอกตำบล";
 		}
 		if (!formData.pcode.trim()) {
 			newErrors.pcode = "กรุณากรอกรหัสไปรษณีย์";
@@ -216,7 +225,9 @@ function ExRegister() {
 		}
 	};
 
-	return (
+	const { user } = useSelector((state) => ({ ...state }));
+
+	return !(user && user.user.token) ? (
 		<div className="bg-light">
 			<div className="container p-5 h-100">
 				<div className="row justify-content-center align-items-center h-100">
@@ -332,7 +343,7 @@ function ExRegister() {
 													เบอร์ติดต่อ <span className="text-danger">*</span>
 												</label>
 												<input
-													type="text"
+													type="tel"
 													id="contact_tel"
 													className="form-control"
 													name="contact_tel"
@@ -369,22 +380,105 @@ function ExRegister() {
 												)}
 											</div>
 
-											<div className="mb-3">
-												<label className="form-label" htmlFor="country">
-													ประเทศ <span className="text-danger">*</span>
+											<ThailandAddressTypeahead
+												value={{
+													subdistrict: formData.subdistrict,
+													district: formData.district,
+													province: formData.province,
+													postalCode: formData.pcode,
+												}}
+												onValueChange={handleThailandAddressChange}
+											>
+												<div className="mb-3">
+													<label className="form-label" htmlFor="subdistrict">
+														ตำบล/แขวง <span className="text-danger">*</span>
+													</label>
+													<ThailandAddressTypeahead.SubdistrictInput
+														id="subdistrict"
+														className="form-control"
+														placeholder="ตำบล/แขวง"
+													/>
+													{errors.subdistrict && (
+														<p className="text-danger">{errors.subdistrict}</p>
+													)}
+												</div>
+
+												<div className="mb-3">
+													<label className="form-label" htmlFor="district">
+														อำเภอ/เขต <span className="text-danger">*</span>
+													</label>
+													<ThailandAddressTypeahead.DistrictInput
+														className="form-control"
+														placeholder="อำเภอ/เขต"
+													/>
+													{errors.district && (
+														<p className="text-danger">{errors.district}</p>
+													)}
+												</div>
+
+												<div className="mb-3">
+													<label className="form-label" htmlFor="province">
+														จังหวัด <span className="text-danger">*</span>
+													</label>
+													<ThailandAddressTypeahead.ProvinceInput
+														className="form-control"
+														placeholder="จังหวัด"
+													/>
+													{errors.province && (
+														<p className="text-danger">{errors.province}</p>
+													)}
+												</div>
+
+												<div className="mb-3">
+													<label className="form-label" htmlFor="pcode">
+														รหัสไปรษณีย์ <span className="text-danger">*</span>
+													</label>
+													<ThailandAddressTypeahead.PostalCodeInput
+														className="form-control mb-3"
+														placeholder="รหัสไปรษณีย์"
+													/>
+													{errors.pcode && (
+														<p className="text-danger">{errors.pcode}</p>
+													)}
+												</div>
+
+												<ThailandAddressTypeahead.Suggestion />
+											</ThailandAddressTypeahead>
+
+											{/* <div className="mb-3">
+												<label className="form-label" htmlFor="subdistrict">
+													ตำบล/แขวง <span className="text-danger">*</span>
 												</label>
 												<input
 													type="text"
-													id="country"
+													id="subdistrict"
 													className="form-control"
-													name="country"
-													value={formData.country}
+													name="subdistrict"
+													value={formData.subdistrict}
 													onChange={handleInputChange}
 												/>
-												{errors.country && (
-													<p className="text-danger">{errors.country}</p>
+												{errors.subdistrict && (
+													<p className="text-danger">{errors.subdistrict}</p>
 												)}
 											</div>
+
+											<div className="mb-3">
+												<label className="form-label" htmlFor="district">
+													อำเภอ/เขต <span className="text-danger">*</span>
+												</label>
+												<input
+													type="text"
+													id="district"
+													className="form-control"
+													name="district"
+													value={formData.district}
+													onChange={handleInputChange}
+												/>
+												{errors.district && (
+													<p className="text-danger">{errors.district}</p>
+												)}
+											</div>
+
 											<div className="mb-3">
 												<label className="form-label" htmlFor="province">
 													จังหวัด <span className="text-danger">*</span>
@@ -403,40 +497,6 @@ function ExRegister() {
 											</div>
 
 											<div className="mb-3">
-												<label className="form-label" htmlFor="district">
-													อำเภอ <span className="text-danger">*</span>
-												</label>
-												<input
-													type="text"
-													id="district"
-													className="form-control"
-													name="district"
-													value={formData.district}
-													onChange={handleInputChange}
-												/>
-												{errors.district && (
-													<p className="text-danger">{errors.district}</p>
-												)}
-											</div>
-
-											<div className="mb-3">
-												<label className="form-label" htmlFor="subdistrict">
-													ตำบล <span className="text-danger">*</span>
-												</label>
-												<input
-													type="text"
-													id="subdistrict"
-													className="form-control"
-													name="subdistrict"
-													value={formData.subdistrict}
-													onChange={handleInputChange}
-												/>
-												{errors.subdistrict && (
-													<p className="text-danger">{errors.subdistrict}</p>
-												)}
-											</div>
-
-											<div className="mb-3">
 												<label className="form-label" htmlFor="pcode">
 													รหัสไปรษณีย์ <span className="text-danger">*</span>
 												</label>
@@ -451,7 +511,7 @@ function ExRegister() {
 												{errors.pcode && (
 													<p className="text-danger">{errors.pcode}</p>
 												)}
-											</div>
+											</div> */}
 
 											<div className="mb-3">
 												<label className="form-label" htmlFor="address">
@@ -483,7 +543,7 @@ function ExRegister() {
 
 									<br />
 									<button
-										className={`${styles.btn_blue} w-100 py-2 fs-5 mb-3`}
+										className={`${btn.btn_blue} w-100 py-2 fs-5 mb-3`}
 										type="submit"
 									>
 										ลงทะเบียน
@@ -504,6 +564,8 @@ function ExRegister() {
 				</div>
 			</div>
 		</div>
+	) : (
+		<PageNotFound />
 	);
 }
 

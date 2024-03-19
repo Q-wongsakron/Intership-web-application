@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import btn from "../../components/btn.module.css";
+import PageNotFound from "../PageNotFound";
 
 import { studentLogin as login } from "../../services/auth.service";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 import { login as loginRedux } from "../../store/userSlice";
+
+import { useSelector } from "react-redux/es/hooks/useSelector";
 
 function InLogin() {
 	const [errorMessage, setErrorMessage] = useState(null);
 
 	const navigate = useNavigate();
+	const location = useLocation();
 	const dispatch = useDispatch();
 
 	const [formData, setFormData] = useState({
@@ -43,11 +47,22 @@ function InLogin() {
 						token: res.data.token,
 						username: res.data.payload.user.username, // will delete
 						role: res.data.payload.user.role, //
+						status: res.data.payload.user.status, //
 					})
 				);
 				localStorage.setItem("token", res.data.token);
 
-				navigate("/student"); // need to check if user is student or teacher or head?
+				if (location.pathname === "/student/self-enroll") {
+					navigate("/student/self-enroll");
+				} else {
+					if (res.data.payload.user.role === "student") {
+						navigate("/student/internship"); // need to check if user is student or teacher or head?
+					} else if (res.data.payload.user.role === "teacher") {
+						navigate("/teacher");
+					} else if (res.data.payload.user.role === "head") {
+						navigate("/head");
+					}
+				}
 			})
 			.catch((err) => {
 				if (err.response && err.response.status === 400) {
@@ -58,7 +73,8 @@ function InLogin() {
 						"Login failed: ",
 						err.response ? err.response.data : err.message
 					);
-					// setErrorMessage(err.response ? err.response.data.message : "");
+					setErrorMessage("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+					//setErrorMessage(err.response ? err.response.data : '');
 				}
 			});
 	};
@@ -75,7 +91,9 @@ function InLogin() {
 		}
 	};
 
-	return (
+	const { user } = useSelector((state) => ({ ...state }));
+
+	return !(user && user.user.token) ? (
 		<div className="bg-light h-100">
 			<div className="container p-5">
 				<div className="row justify-content-center align-items-center h-100">
@@ -143,6 +161,12 @@ function InLogin() {
 				</div>
 			</div>
 		</div>
+	) : user.user.role === "student" ||
+	  user.user.role === "teacher" ||
+	  user.user.role === "head" ? (
+		<PageNotFound />
+	) : (
+		<PageNotFound />
 	);
 }
 

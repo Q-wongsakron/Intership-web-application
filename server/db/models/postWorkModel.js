@@ -18,10 +18,41 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "location",
       },
-      skill: {
-        type: Sequelize.STRING(255),
+      subdistrict: {
+        type: Sequelize.STRING(100),
         allowNull: false,
-        field: "skill",
+        field: "subdistrict",
+      },
+      district: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "district",
+      },
+      province: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "province",
+      },
+
+      pcode: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "pcode",
+      },
+      contact_email: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "contact_email",
+      },
+      contact_tel: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "contact_tel",
+      },
+      position_num: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        field: "position_num",
       },
       work_hours: {
         type: Sequelize.STRING(255),
@@ -33,10 +64,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "salary",
       },
-      contract: {
+      welfare: {
         type: Sequelize.STRING(255),
-        allowNull: false,
-        field: "contract",
+        allowNull: true,
+        field: "welfare",
       },
       qualifications: {
         type: Sequelize.STRING(255),
@@ -48,11 +79,22 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "desc",
       },
+      other: {
+        type: Sequelize.STRING(1000),
+        allowNull: true,
+        field: "other",
+      },
       cat: {
         type: Sequelize.JSON(),
         allowNull: false,
         field: "cat",
       },
+      name_to: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        field: "name_to",
+      },
+
       dateStartPost: {
         type: Sequelize.DATE(),
         allowNull: false,

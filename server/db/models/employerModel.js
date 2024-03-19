@@ -43,11 +43,6 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "province",
       },
-      country: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-        field: "country",
-      },
       pcode: {
         type: Sequelize.STRING(100),
         allowNull: false,
@@ -67,6 +62,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(100),
         allowNull: false,
         field: "contact_tel",
+      },
+      about: {
+        type: Sequelize.STRING(1000),
+        allowNull: true,
+        field: "about",
       },
       company_pic: {
         type: Sequelize.STRING(100),
