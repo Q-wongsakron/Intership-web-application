@@ -22,8 +22,14 @@ export default function Job({
 	const parsedPositions =
 		typeof positions === "string" ? JSON.parse(positions) : positions;
 
+
+	
 	const { user } = useSelector((state) => ({ ...state }));
 	const [showModal, setShowModal] = useState(false);
+
+	const currentDate = Date.now();
+	const startPostDate = new Date(startPost);
+	const isPostNotStart = currentDate < startPostDate;
 
 	const isStudentStatusOne = status && status === "1";
 
@@ -141,7 +147,11 @@ export default function Job({
 									>
 										ยกเลิกการสมัคร
 									</button>
-								) : (
+								) : isPostNotStart ?(
+									<button className={`${btn.btn_red_outline} w-100`}>
+										ยังไม่เปิดให้สมัคร
+									</button>
+								): (
 									<button className={`${btn.btn_blue_outline} w-100`}>
 										สมัครฝึกงาน
 									</button>

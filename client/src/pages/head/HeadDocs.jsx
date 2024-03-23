@@ -56,17 +56,33 @@ function HeadDocs() {
   const memoizedUserToken = useMemo(() => user.user.token, [user.user.token]);
 
   const currentDate = new Date();
-  const mappedData = data.map((item,index)=>(
-	{ "std_id": item.student.std_id,
+  const mappedData = data.map((item, index) => ({
+	"std_id": item.student.std_id,
 	"company_name": item.employer.company_name,
-	"displayname_th":item.student.displayname_th,
-	"email":item.student.email,
-	"tel":item.student.tel,
-   "require_doc":item.require_doc,
-   "status":item.status
-
-   }));
-   const concatDataFinalShow = mappedData.concat(selfData)
+	"displayname_th": item.student.displayname_th,
+	"email": item.student.email,
+	"tel": item.student.tel,
+	"date_gen_doc": formatDate(item.date_gen_doc),
+	"require_doc": item.require_doc,
+	"status": item.status
+  }));
+  const mappedDataSelf = selfData.map((item, index) => ({
+	"std_id": item.std_id,
+	"company_name": item.company_name,
+	"displayname_th": item.displayname_th,
+	"email": item.email,
+	"tel": item.tel,
+	"date_gen_doc": formatDate(item.date_gen_doc),
+	"require_doc": item.require_doc,
+	"status": item.status
+  }));
+  
+  function formatDate(dateString) {
+	const date = new Date(dateString);
+	const formattedDate = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')} ${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}`;
+	return formattedDate;
+  }
+   const concatDataFinalShow = mappedData.concat(mappedDataSelf)
   
   // Function to convert Arabic numerals to Thai numerals
   const convertToThaiNumerals = (number) => {
@@ -585,7 +601,7 @@ useEffect(() => {
 	}
 
 	
-	console.log(mappedData)
+	console.log(selectedItems)
 	console.log(selectedItemsSelf)
 	return (
 		<>
@@ -607,7 +623,7 @@ useEffect(() => {
 							<th scope="col">เบอร์โทร</th>
 							<th scope="col">บริษัท/หน่วยงาน</th>
 							<th scope="col">เอกสารฉบับจริง</th>
-							<th scope="col">สร้างเอกสาร</th>
+							<th scope="col">เลือกสร้างเอกสาร</th>
 							<th scope="col">ACTION</th>
 						</tr>
 					</thead>
@@ -933,7 +949,7 @@ useEffect(() => {
 							<th scope="col">เบอร์โทร</th>
 							<th scope="col">บริษัท/หน่วยงาน</th>
 							<th scope="col">เอกสารฉบับจริง</th>
-							<th scope="col">สร้างเอกสาร</th>
+							<th scope="col">เลือกสร้างเอกสาร</th>
 							<th scope="col">ACTION</th>
 						</tr>
 					</thead>
@@ -1125,7 +1141,7 @@ useEffect(() => {
 	<div className="container p-3 p-md-4 container-card">
 			<div className="d-flex justify-content-between mb-4">
 				<h3 className="fw-bold">
-					อนุมัติเอกสารเรียบร้อย
+					เอกสารที่อนุมัติเรียบร้อยเเล้ว
 				</h3>
 			</div>
 
@@ -1139,6 +1155,7 @@ useEffect(() => {
 							<th scope="col">อีเมล</th>
 							<th scope="col">เบอร์โทร</th>
 							<th scope="col">บริษัท/หน่วยงาน</th>
+							<th scope="col">วันที่ออกเอกสาร</th>
 							<th scope="col">เอกสารฉบับจริง</th>
 							<th scope="col">เอกสาร</th>
 							
@@ -1156,6 +1173,7 @@ useEffect(() => {
 							<td>{filteredData.email}</td>
 							<td>{filteredData.tel}</td>
 							<td>{filteredData.company_name}</td>
+							<td>{filteredData.date_gen_doc}</td>
 							<td>
 								{ filteredData.require_doc == 1 ? <p style={{ color: 'red' }}>ต้องการ</p> : <p> - </p>}
 							</td>

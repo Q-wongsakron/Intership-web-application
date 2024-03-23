@@ -19,6 +19,11 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: Sequelize.NOW(),
         field: "date_confirm",
       },
+      date_gen_doc:{
+        type: Sequelize.DATE(),
+        allowNull: true,
+        field: "date_gen_doc",
+      },
       status: {
         type: Sequelize.STRING(100),
         allowNull: true,

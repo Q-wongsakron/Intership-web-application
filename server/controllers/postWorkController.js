@@ -1,18 +1,39 @@
 const db = require("../db/index");
 const { posts_job, employer } = db;
+const { Op } = require("sequelize");
 db.sequelize.sync();
 // import { db } from "../db.js";
 const moment = require("moment");
 
+
 exports.getPosts = async (req, res) => {
   try {
+    let ts = Date.now();
+
+    let currentDate = new Date(ts);
+
+    //console.log("current Date is : ",year + " - " + month + " - " + date)
     const post = await posts_job.findAll({
       include: [
         { model: employer, attributes: ["company_pic", "company_name"] },
       ],
     });
 
-    return res.status(200).json(post);
+    const sitllPosts = await posts_job.findAll({
+      include: [
+        { model: employer, attributes: ["company_pic", "company_name"] },
+      ],
+      where: {
+        dateEndPost: {
+          [Op.gte]: currentDate // Exclude posts where the end date is less than or equal to the current date
+        }
+      }
+    });
+
+
+    console.log(sitllPosts);
+
+    return res.status(200).json(sitllPosts);
   } catch (error) {
     return res.status(500).send(error.message);
   }

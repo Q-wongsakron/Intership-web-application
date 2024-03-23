@@ -39,6 +39,10 @@ export default function JobDetail() {
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [dropdownOptions, setDropdownOptions] = useState([]);
 
+	const currentDate = Date.now();
+	const startPostDate = new Date(jobData.post.dateStartPost);
+	const isPostNotStart = currentDate < startPostDate;
+
 	const [loading, setLoading] = useState(true);
 
 	// const loadData = async () => {
@@ -533,7 +537,15 @@ export default function JobDetail() {
 								user.user.role === "teacher" ||
 								user.user.role === "employer") ? (
 								""
-							) : (
+							) :isPostNotStart?(<>
+								<Button
+									className={`${btn.btn_red} w-100`}
+									
+								>
+									ยังไม่เปิดให้สมัคร
+								</Button>
+							</>) 
+							: (
 								<>
 									<Button
 										className={`${btn.btn_blue} w-100`}

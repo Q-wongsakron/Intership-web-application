@@ -169,7 +169,9 @@ exports.createCourtesy = async (req, res) => {
         const fontsize = setupD.fontsize;
         const thaiFontPath = setupD.font
         const imagePath = setupD.img_cover;
-        
+        const currentDate = new Date();
+        const utcOffset = 7 * 60; // UTC+7 in minutes
+        currentDate.setMinutes(currentDate.getMinutes() + utcOffset);
         // Create a new PDF document with the Thai font
         const doc = new PDFDocument({ font: thaiFontPath });
         const doc2 = new PDFDocument({ font: thaiFontPath });
@@ -201,11 +203,13 @@ exports.createCourtesy = async (req, res) => {
             const updateStatus = await confirm.update(
                 {
                     status: "ดำเนินเอกสารเสร็จสิ้น",
+                    date_gen_doc: currentDate
                   },
                   {
                     where: { std_id: std_id },
                   }
             )
+
             // create new edit data 
             // const saveEditGenDoc = await edit_courtesy.create({
             //     std_id: std_id,
@@ -237,7 +241,9 @@ exports.createMultiCourtesy = async (req, res) => {
         const fontsize = setupD.fontsize;
         const thaiFontPath = setupD.font;
         const imagePath = setupD.img_cover;
-
+        const currentDate = new Date();
+        const utcOffset = 7 * 60; // UTC+7 in minutes
+        currentDate.setMinutes(currentDate.getMinutes() + utcOffset);
         const Data = req.body.selectedItems;
         console.log("hello normal",Data)
         if (Data.length > 0) {
@@ -272,6 +278,7 @@ exports.createMultiCourtesy = async (req, res) => {
                     const updateStatus = await confirm.update(
                         {
                             status: "ดำเนินเอกสารเสร็จสิ้น",
+                            date_gen_doc: currentDate
                         },
                         {
                             where: { std_id: item.std_id },
@@ -309,7 +316,9 @@ exports.createMultiCourtesySelf = async (req, res) => {
         const fontsize = setupD.fontsize;
         const thaiFontPath = setupD.font;
         const imagePath = setupD.img_cover;
-
+        const currentDate = new Date();
+        const utcOffset = 7 * 60; // UTC+7 in minutes
+        currentDate.setMinutes(currentDate.getMinutes() + utcOffset);
         const Data = req.body.selectedItemsSelf;
         console.log("hello",Data.selectedItemsSelf)
         if (Data.length > 0) {
@@ -344,6 +353,7 @@ exports.createMultiCourtesySelf = async (req, res) => {
                     const updateStatus = await self_enroll.update(
                         {
                             status: "ดำเนินเอกสารเสร็จสิ้น",
+                            date_gen_doc: currentDate
                         },
                         {
                             where: { std_id: item.std_id },
@@ -428,7 +438,9 @@ exports.createCourtesySelf = async (req, res) => {
         const fontsize = setupD.fontsize;
         const thaiFontPath = setupD.font
         const imagePath = setupD.img_cover;
-        
+        const currentDate = new Date();
+        const utcOffset = 7 * 60; // UTC+7 in minutes
+        currentDate.setMinutes(currentDate.getMinutes() + utcOffset);
         // Create a new PDF document with the Thai font
         const doc = new PDFDocument({ font: thaiFontPath });
         const doc2 = new PDFDocument({ font: thaiFontPath });
@@ -460,6 +472,7 @@ exports.createCourtesySelf = async (req, res) => {
             const updateStatus = await self_enroll.update(
                 {
                     status: "ดำเนินเอกสารเสร็จสิ้น",
+                    date_gen_doc: currentDate
                   },
                   {
                     where: { std_id: std_id },
