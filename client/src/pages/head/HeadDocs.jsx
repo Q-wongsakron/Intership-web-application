@@ -30,7 +30,7 @@ function HeadDocs() {
   const [editShowModal, setEditShowModal] = useState(false);
   const [editPreDataModal, setEditPreDataModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
-
+  const [resMultiCreateModal, setResMultiCreateModal] = useState(false)
  // set Modal Data
   const [modalData, setModalData] = useState({}); // Store data for the modal fields
   const [editModalData, setEditModalData] = useState({std_id: "",}); // Store data for the edit
@@ -357,6 +357,7 @@ useEffect(() => {
 	setCreateSelfModal(false);
 	setMultiCreateModal(false);
 	setMultiCreateSelfModal(false);
+	setResMultiCreateModal(false);
   };
 
   // create pre courtesy data in Modal
@@ -572,13 +573,23 @@ useEffect(() => {
 
 	const handleMultiCreateDoc = async () => {
 		try {
-			const response = await axios.post("http://localhost:5500/api/genMultiCourtesy", { selectedItems });
-		
-			// Handle the response data as needed
-			console.log("Response from server:", response.data);
-	
-			setMultiCreateModal(false);
-			setShouldRerender(prevState => !prevState); // Trigger a re-render
+			// const response = await axios.post("http://localhost:5500/api/genMultiCourtesy", { selectedItems });
+			
+			// // Handle the response data as needed
+			// console.log("Response from server:", response.data);
+			if(!selectedItems.length == 0){
+				
+				setMultiCreateModal(false);
+				const response = await axios.post("http://localhost:5500/api/genMultiCourtesy", { selectedItems });
+				console.log("Response from server:", response.data);
+				setShouldRerender(prevState => !prevState); // Trigger a re-render
+			}else{
+				
+				setMultiCreateModal(false);
+				setResMultiCreateModal(true);
+                setShouldRerender(prevState =>!prevState); // Trigger a re-render
+			}
+			
 		} catch (error) {
 			console.error("Error:", error);
 			setMultiCreateModal(false);
@@ -587,13 +598,23 @@ useEffect(() => {
 
 	const handleMultiCreateDocSelf = async () => {
 		try {
-			const response = await axios.post("http://localhost:5500/api/genMultiCourtesySelf", { selectedItemsSelf });
+			
 		
 			// Handle the response data as needed
-			console.log("Response from server:", response.data);
-	
-			setMultiCreateSelfModal(false);
-			setShouldRerender(prevState => !prevState); // Trigger a re-render
+			if(!selectedItemsSelf.length == 0){
+				
+				setMultiCreateSelfModal(false);
+				const response = await axios.post("http://localhost:5500/api/genMultiCourtesySelf", { selectedItemsSelf });
+				console.log("Response from server:", response.data);
+				setShouldRerender(prevState => !prevState); // Trigger a re-render
+			}else{
+				
+				setMultiCreateSelfModal(false);      
+				setResMultiCreateModal(true);
+                setShouldRerender(prevState =>!prevState); // Trigger a re-render
+			}
+
+			
 		} catch (error) {
 			console.error("Error:", error);
 			setMultiCreateSelfModal(false);
@@ -928,7 +949,21 @@ useEffect(() => {
           </Button>
         </Modal.Footer>
       </Modal>
+	  <Modal show={resMultiCreateModal} onHide={handleModalClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create Multi Document</Modal.Title>
+        </Modal.Header>
+		<Modal.Body>
+				กรุณาคลิก กล่องสี่เหลี่ยม เพื่อเลือกรายชื่อที่ต้องการสร้างเอกสาร
+		</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleModalClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
 	<br/>
+
 
 	{/* self enroll */}
 	<div className="container p-3 p-md-4 container-card">

@@ -39,9 +39,7 @@ export default function JobDetail() {
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [dropdownOptions, setDropdownOptions] = useState([]);
 
-	const currentDate = Date.now();
-	const startPostDate = new Date(jobData.post.dateStartPost);
-	const isPostNotStart = currentDate < startPostDate;
+
 
 	const [loading, setLoading] = useState(true);
 
@@ -184,7 +182,12 @@ export default function JobDetail() {
 	if (!jobData) {
 		return <PageNotFound />;
 	}
+	console.log(jobData);
 
+	const currentDate = Date.now();
+	const startPostDate = new Date(jobData.post.dateStartPost);
+	const isPostNotStart = currentDate < startPostDate;
+	
 	return (
 		<>
 			<div className="container p-2 p-lg-3 p-xl-5 mb-3 mb-xl-0">

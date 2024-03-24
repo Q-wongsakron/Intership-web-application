@@ -16,7 +16,8 @@ function SetupDocs() {
             start_date: "",
             end_date: "",
 			start_date_convert:"",
-			end_date_convert:"",
+			end_date_convert:"", 	
+			end_date_year: "",
             head_name: "",
 			signature_img: null,
         
@@ -69,20 +70,18 @@ function SetupDocs() {
 		const thaiNumerals = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
 		return number.toString().replace(/\d/g, (digit) => thaiNumerals[digit]);
 	  };
+	const thaiMonths = [
+		'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+		'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+	  ];
 	const handleStartDateChange = (date) => {
 		const endDate = new Date(date);
 		const startDate = new Date(date);
-		
-
-		const thaiMonths = [
-			'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-			'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-		  ];
-
-		
+	
 		endDate.setDate(date.getDate() + 60);
 		const startDateConvert = `${convertToThaiNumerals(startDate.getDate())}  ${thaiMonths[startDate.getMonth()]}`
-		const endDateConvert = `${convertToThaiNumerals(endDate.getDate())}  ${thaiMonths[endDate.getMonth()]}}`
+		const endDateConvert = `${convertToThaiNumerals(endDate.getDate())}  ${thaiMonths[endDate.getMonth()]}`
+		const endYearConvert = `${convertToThaiNumerals(endDate.getFullYear() + 543)}`
 		console.log(endDate.getFullYear())
 		setFormData({
 		  ...formData,
@@ -90,8 +89,23 @@ function SetupDocs() {
 		  end_date: endDate,
 		  start_date_convert: startDateConvert,
 		  end_date_convert: endDateConvert,
+		  end_date_year: endYearConvert,
 		});
 	  };
+	const handleEndDateChange = (date) => {
+		const endDate = new Date(date);
+		const endDateConvert = `${convertToThaiNumerals(endDate.getDate())}  ${thaiMonths[endDate.getMonth()]}`
+		const endYearConvert = `${convertToThaiNumerals(endDate.getFullYear() + 543)}`
+
+		console.log(endDate.getFullYear())
+		setFormData({
+		  ...formData,
+		  end_date: endDate,
+		  end_date_convert: endDateConvert,
+		  end_date_year: endYearConvert,
+		});
+	  };
+	  
     useEffect(() => {}, []);
 	console.log(formData)
     return (
@@ -147,10 +161,10 @@ function SetupDocs() {
 											className="form-control"
 											selected={formData.end_date}
 											onChange={(date) =>
-											setFormData({
+											{setFormData({
 												...formData,
 												end_date: date,
-											})
+											}),handleEndDateChange(date)}
 											}
 											required
 										/>

@@ -18,6 +18,11 @@ module.exports = (sequelize, Sequelize) => {
                 allowNull: false,
                 field: "end_date",
             },
+            end_date_year: {
+                type: Sequelize.STRING(100),
+                allowNull: false,
+                field: "end_date_year",
+            },
             head_name: {
                 type: Sequelize.STRING(100),
                 allowNull: false,

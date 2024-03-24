@@ -17,6 +17,10 @@ function SelfEnroll() {
 	const [loading, setLoading] = useState(true);
 	const [showModal, setShowMoal] = useState(false);
 	const [requireDocStates, setRequireDocStates] = useState({});
+
+	const [apiResponse, setApiResponse] = useState(null);
+	const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
+
 	const navigate = useNavigate();
 
 	const { user } = useSelector((state) => ({ ...state }));
@@ -91,8 +95,13 @@ function SelfEnroll() {
 				  authtoken: user.user.token,
 				},
 			  });
+
+			  setApiResponse(newSelfEnroll.data);
+			  setIsResponseModalOpen(true);
 			// navigate("/student/internship");
 		} catch (error) {
+			setIsResponseModalOpen(true);
+			setApiResponse(error.response.data);
 			console.error(
 				"Submit Failed: ",
 				err.response ? err.response.data : err.message
@@ -100,6 +109,32 @@ function SelfEnroll() {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const ResponseModal = () => {
+		return (
+			<Modal
+				show={isResponseModalOpen}
+				onHide={() => setIsResponseModalOpen(false)}
+				centered
+			>
+				<Modal.Header closeButton>
+					<Modal.Title className="fw-bold">ยื่นข้อมูลฝึกงาน</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					{apiResponse ? <p>{apiResponse.message}</p> : <p>Loading...</p>}
+				</Modal.Body>
+				<Modal.Footer>
+					<Button
+						variant="secondary"
+						onClick={() => {setIsResponseModalOpen(false)
+							navigate("/student/internship");}}
+					>
+						ปิด
+					</Button>
+				</Modal.Footer>
+			</Modal>
+		);
 	};
 
 	const ConfirmModal = () => {
@@ -163,7 +198,7 @@ function SelfEnroll() {
 						className={`${btn.btn_blue}`}
 						onClick={() => {
 							handleConfirmSubmit();
-							navigate("/student/internship");
+							// navigate("/student/internship");
 						}}
 					>
 						ยืนยัน
@@ -384,6 +419,7 @@ function SelfEnroll() {
 				</form>
 
 				<ConfirmModal />
+				<ResponseModal />
 			</div>
 		</>
 	);

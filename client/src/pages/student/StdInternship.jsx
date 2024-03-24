@@ -73,7 +73,7 @@ function StdInternship() {
 					className="row justify-content-center text-center text-white stdInternshipStatus"
 				>
 					<div
-						className={`col-4 py-3 rounded-start ${
+						className={`col-3 py-3 rounded-start ${
 							stdData.status === "1" || stdData.status === "0"
 								? "bg-blue"
 								: "bg-dark bg-opacity-25"
@@ -81,16 +81,27 @@ function StdInternship() {
 					>
 						<h5 className="m-0">หาที่ฝึกงาน</h5>
 					</div>
+					
+					
 					<div
-						className={`col-4 py-3 border-start border-end ${
+						className={`col-3 py-3 border-start border-end ${
 							stdData.status === "2" ? "bg-blue" : "bg-dark bg-opacity-25"
+						}`}
+					>
+						<h5 className="m-0">รอเอกสารจากภาควิชา</h5>
+					</div>
+
+					<div
+						className={`col-3 py-3 border-start border-end ${
+							stdData.status === "3" ? "bg-blue" : "bg-dark bg-opacity-25"
 						}`}
 					>
 						<h5 className="m-0">ระหว่างฝึกงาน</h5>
 					</div>
+
 					<div
-						className={`col-4 py-3 rounded-end ${
-							stdData.status === "3" ? "bg-blue" : "bg-dark bg-opacity-25"
+						className={`col-3 py-3 rounded-end ${
+							stdData.status === "4" ? "bg-blue" : "bg-dark bg-opacity-25"
 						}`}
 					>
 						<h5 className="m-0">หลังฝึกงาน</h5>
@@ -202,7 +213,23 @@ function StdInternship() {
 					) : null}
 				</div>
 			);
-		} else if (status === "2") {
+		}else if (status === "2") {
+			return (
+				<div className="stdStatusDetail">
+					<div className="d-flex justify-content-between mb-2">
+						<h5 className="fw-bold">รอเอกสารจากภาควิชา</h5>
+					</div>
+					<div className="mt-2 mt-sm-0">
+						<Link to={"/student/my-employer"}>ข้อมูลที่ฝึกงาน</Link>
+						<p>- เอกสารขอความอนุเคราะห์ฝึกงาน</p>
+						<p>- หนังสือส่งตัวจากทางภาควิชา</p>
+					</div>
+					
+				</div>
+			);
+		
+		
+		}else if (status === "3") {
 			return (
 				<div className="stdStatusDetail">
 					<div className="d-flex justify-content-between mb-2">
@@ -216,7 +243,7 @@ function StdInternship() {
 					<button>ฝึกงานเสร็จแล้วก็กดไหม?</button>
 				</div>
 			);
-		} else if (status === "3") {
+		} else if (status === "4") {
 			return (
 				<div className="stdStatusDetail">
 					<div className="d-flex justify-content-between mb-2">

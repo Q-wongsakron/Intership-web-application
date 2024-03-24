@@ -36,13 +36,15 @@ function convertStringToThaiNumber(inputString) {
 exports.setup_courtesy = async (req, res) => {
     try {
         console.log("Received setup request:", req.body);
-        const { start_date_convert, end_date_convert, head_name } = req.body.formData;
-        console.log("Extracted form data:", { start_date_convert, end_date_convert, head_name });
+        const { start_date_convert, end_date_convert, head_name,end_date_year } = req.body.formData;
+        console.log("Extracted form data:", { start_date_convert, end_date_convert, head_name, end_date_year });
         
         const setup = await setup_courtesy.create({
+            
             start_date:start_date_convert,
             end_date:end_date_convert,
-            head_name,
+            end_date_year:end_date_year,
+            head_name
             
         });
 
@@ -209,6 +211,14 @@ exports.createCourtesy = async (req, res) => {
                     where: { std_id: std_id },
                   }
             )
+            const updateStatusStd = await student.update(
+                {
+                    status: "3",
+                  },
+                  {
+                    where: { std_id: std_id },
+                  }
+            )
 
             // create new edit data 
             // const saveEditGenDoc = await edit_courtesy.create({
@@ -284,7 +294,14 @@ exports.createMultiCourtesy = async (req, res) => {
                             where: { std_id: item.std_id },
                         }
                     );
-
+                    const updateStatusStd = await student.update(
+                        {
+                            status: "3",
+                          },
+                          {
+                            where: { std_id: item.std_id },
+                          }
+                    )
                     // const saveEditGenDoc = await edit_courtesy.create({
                     //     std_id: item.std_id,
                     //     number: item.number,
@@ -359,7 +376,14 @@ exports.createMultiCourtesySelf = async (req, res) => {
                             where: { std_id: item.std_id },
                         }
                     );
-
+                    const updateStatusStd = await student.update(
+                        {
+                            status: "3",
+                          },
+                          {
+                            where: { std_id: item.std_id },
+                          }
+                    )
                     // const saveEditGenDoc = await edit_courtesy.create({
                     //     std_id: item.std_id,
                     //     number: item.number,
@@ -478,6 +502,14 @@ exports.createCourtesySelf = async (req, res) => {
                     where: { std_id: std_id },
                   }
             )
+            const updateStatusStd = await student.update(
+                {
+                    status: "3",
+                  },
+                  {
+                    where: { std_id: std_id },
+                  }
+            )
             // create new edit data 
             // const saveEditGenDoc = await edit_courtesy.create({
             //     std_id: std_id,
@@ -588,7 +620,7 @@ function docCreateWithLic(doc,std_id,fontsize,thisdate,number,imagePath,date,nam
         doc
         .fontSize(fontsize)
         .text(
-            `๒๕${thisdate}   (รวมเวลาฝึกงานไม่น้อยกว่า  ๒๔๐ ชั่วโมง) ภาควิชาฯ หวังเป็นอย่างยิ่งว่าจะได้รับความอนุเคราะห์`,
+            `${lastSetup.end_date_year}   (รวมเวลาฝึกงานไม่น้อยกว่า  ๒๔๐ ชั่วโมง) ภาควิชาฯ หวังเป็นอย่างยิ่งว่าจะได้รับความอนุเคราะห์`,
             93.390861224,
             437.96
         );
@@ -699,7 +731,7 @@ function docCreateWithNonLic(doc2,std_id,fontsize,thisdate,number,imagePath,date
     doc2
     .fontSize(fontsize)
     .text(
-        `๒๕${thisdate}   (รวมเวลาฝึกงานไม่น้อยกว่า  ๒๔๐ ชั่วโมง) ภาควิชาฯ หวังเป็นอย่างยิ่งว่าจะได้รับความอนุเคราะห์`,
+        `${lastSetup.end_date_year}   (รวมเวลาฝึกงานไม่น้อยกว่า  ๒๔๐ ชั่วโมง) ภาควิชาฯ หวังเป็นอย่างยิ่งว่าจะได้รับความอนุเคราะห์`,
         93.390861224,
         437.96
     );

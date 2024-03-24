@@ -145,8 +145,10 @@ function StudentMornitor() {
                                 ) : item.status == "1" ? (
                                     <td>รอการตอบรับ</td>
                                 ) : item.status == "2" ? (
+                                    <td>รอเอกสารจากภาควิชา</td>
+                                ) : item.status == "3" ? (
                                     <td>ระหว่างฝึกงาน</td>
-                                ) : (
+                                )  : (
                                 <td>เสร็จสิ้นฝึกงาน</td>
                                 )}
                                

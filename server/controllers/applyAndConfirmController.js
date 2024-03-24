@@ -50,7 +50,7 @@ exports.createApply = async (req, res) => {
       } else {
         res
           .status(400)
-          .json({ message: "สมัครฝึกงานไม่สำเร็จ กรุณาติดต่อภาควิชา" });
+          .json({ message: "สมัครฝึกงานไม่สำเร็จ คุณเคยสมัครฝึกงานเเล้ว กรุณาติดต่อภาควิชา" });
       }
 
     }else {
