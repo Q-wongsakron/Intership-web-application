@@ -46,13 +46,17 @@ exports.oneNews = async(req, res) => {
 // ใช้วิธี เเยกส่งโดยส่ง text ไปสร้าง database ก่อน ใน react
 exports.uploadCoverImg = async (req, res) => {
     try{
-        const getlastNews = await news.findAll()
-        const lastnews = getlastNews.length - 1
-       
-        const uplaodCover = await news.update({
-            cover_img: `${req.user.username}/${req.file.originalname}`
-        },{ where: { news_id : getlastNews[lastnews].news_id}})
-        res.send("Upload Successfully")
+        if(req.file){
+            const getlastNews = await news.findAll()
+            const lastnews = getlastNews.length - 1
+        
+            const uplaodCover = await news.update({
+                cover_img: `${req.user.username}/${req.file.originalname}`
+            },{ where: { news_id : getlastNews[lastnews].news_id}})
+            res.status(200).send("Upload Successfully");
+        }else{
+            res.status(200).send("Upload no file");
+        }
     }catch(err){
         console.error(err)
         res.status(500).json({message: "server error"})
@@ -65,19 +69,22 @@ exports.uploadImages = async (req, res) => {
         const lastnews = getlastNews.length - 1
 
         console.log(req.files);
+        if(req.file){
+            // Assuming req.files is an array of uploaded files
+            const imagePaths = req.files.map(file => `${req.user.username}/${file.originalname}`);
 
-        // Assuming req.files is an array of uploaded files
-        const imagePaths = req.files.map(file => `${req.user.username}/${file.originalname}`);
+            // Concatenate the image paths with commas
+            const concatenatedPaths = imagePaths.join(',');
 
-        // Concatenate the image paths with commas
-        const concatenatedPaths = imagePaths.join(',');
+            // Assuming you want to update the database with a comma-separated string of image paths
+            const uplaodImages = await news.update({
+                images: concatenatedPaths
+            }, { where: { news_id : getlastNews[lastnews].news_id } });
 
-        // Assuming you want to update the database with a comma-separated string of image paths
-        const uplaodImages = await news.update({
-            images: concatenatedPaths
-        }, { where: { news_id : getlastNews[lastnews].news_id } });
-
-        res.send("Upload Successfully");
+            res.status(200).send("Upload Successfully");
+        }else{
+            res.status(200).send("Upload no file");
+        }
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });

@@ -22,10 +22,14 @@ exports.setup_courtesy_sig_img = async (req, res) => {
     const setup = await setup_courtesy.findAll();
     const lastSetup = setup.length - 1;
     console.log(setup)
+    if(req.file){
     const upload_sig_img = await setup_courtesy.update({
       signature_img: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { id : setup[lastSetup].id}})
-    res.send("Signature Upload Successfully");
+    res.status(200).send("Signature Upload Successfully");
+    }else{
+      res.status(200).send("Signature no file");
+    }
   }catch(err){
     console.error(err);
     res.status(500).json({ message: "Resume Upload Failed" });
@@ -34,10 +38,17 @@ exports.setup_courtesy_sig_img = async (req, res) => {
 
 exports.employerImg = async (req, res) => {
   try{
-    const uploadImg = await employer.update({
-      company_pic: `${currentYear}/${req.user.username}/${req.file.originalname}`
-    },{where: { employer_id : req.user.id}})
-    res.status(200).json({message: "upload employer image succress"})
+    console.log(req.file)
+    if(req.file){
+      const uploadImg = await employer.update({
+        company_pic: `${currentYear}/${req.user.username}/${req.file.originalname}`
+      },{where: { employer_id : req.user.id}})
+      res.status(200).json({message: "upload employer image succress"})
+    }
+    else{
+      res.status(200).json({message: "not have image"})
+    }
+    
   }catch(err){
     console.error(err)
     res.status(500).json({message: "internal server error"})
@@ -46,10 +57,14 @@ exports.employerImg = async (req, res) => {
 
 exports.uploadFileResume = async (req, res) => {
   try {
-    const uploadResume = await student.update({
-      resume: `${currentYear}/${req.user.username}/${req.file.originalname}`
-    },{where: { std_id : req.user.username}});
-    res.send("Resume Upload Successfully");
+    if(req.file){
+      const uploadResume = await student.update({
+        resume: `${currentYear}/${req.user.username}/${req.file.originalname}`
+      },{where: { std_id : req.user.username}});
+      res.status(200).send("Resume Upload Successfully");
+    }else{
+      res.status(200).send("Resume no file");
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Resume Upload Failed" });
@@ -59,10 +74,14 @@ exports.uploadFileResume = async (req, res) => {
 // Document Uplaod
 exports.uploadReportPdf = async (req, res) => {
   try {
-    const  ReportPdf = await document.update({
-      report_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
-    },{where: { std_id : req.user.username}});
-    res.send("Upload Successfully");
+    if(req.file){
+      const  ReportPdf = await document.update({
+        report_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
+      },{where: { std_id : req.user.username}});
+      res.status(200).send("Upload Successfully");
+    }else{
+      res.status(200).send("Upload no file");
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Upload Failed" });
@@ -70,11 +89,15 @@ exports.uploadReportPdf = async (req, res) => {
 };
 exports.uploadReportDocx = async (req, res) => {
   try {
-    console.log(req)
-    const ReportDocx = await document.update({
-      report_docx: `${currentYear}/${req.user.username}/${req.file.originalname}`
-    },{where: { std_id : req.user.username}});
-    res.send("Upload Successfully");
+    if(req.file){
+      console.log(req)
+      const ReportDocx = await document.update({
+        report_docx: `${currentYear}/${req.user.username}/${req.file.originalname}`
+      },{where: { std_id : req.user.username}});
+      res.status(200).send("Upload Successfully");
+    }else{
+      res.status(200).send("Upload no file");
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Upload Failed" });
@@ -82,10 +105,14 @@ exports.uploadReportDocx = async (req, res) => {
 };
 exports.uploadTimestampPdf = async (req, res) => {
   try {
-    const Timestamp = await document.update({
-      timestamp_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
-    },{where: { std_id : req.user.username}});
-    res.send("Upload Successfully");
+    if(req.file){
+      const Timestamp = await document.update({
+        timestamp_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
+      },{where: { std_id : req.user.username}});
+      res.status(200).send("Upload Successfully");
+    }else{
+      res.status(200).send("Upload no file");
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Upload Failed" });
@@ -93,10 +120,14 @@ exports.uploadTimestampPdf = async (req, res) => {
 };
 exports.uploadPresentPdf= async (req, res) => {
   try {
-    const PresentPdf = await document.update({
-      present_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
-    },{where: { std_id : req.user.username}});
-    res.send("Upload Successfully");
+    if(req.file){
+      const PresentPdf = await document.update({
+        present_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
+      },{where: { std_id : req.user.username}});
+      res.status(200).send("Upload Successfully");
+    }else{
+      res.status(200).send("Upload no file");
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Upload Failed" });
@@ -104,10 +135,14 @@ exports.uploadPresentPdf= async (req, res) => {
 };
 exports.uploadPresentPpt = async (req, res) => {
   try {
-    const PresentPpt = await document.update({
-      present_ppt: `${currentYear}/${req.user.username}/${req.file.originalname}`
-    },{where: { std_id : req.user.username}});
-    res.send("Upload Successfully");
+    if(req.file){
+      const PresentPpt = await document.update({
+        present_ppt: `${currentYear}/${req.user.username}/${req.file.originalname}`
+      },{where: { std_id : req.user.username}});
+      res.status(200).send("Upload Successfully");
+    }else{
+      res.status(200).send("Upload no file");
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Upload Failed" });

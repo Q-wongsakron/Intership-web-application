@@ -45,7 +45,7 @@ function HeadDocs() {
   const [shouldRerender, setShouldRerender] = useState(false);
 
   // view DOC
-  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [showDocModal, setShowDocModal] = useState(false);
   const [viewPdf, setViewPdf] = useState(null);
 
   const { user } = useSelector((state) => ({ ...state }));
@@ -478,10 +478,10 @@ useEffect(() => {
 				const selfDoc = await axios.get(`http://localhost:5500/api/getGenDocSelf/${std_id}`,
 				{});
 				setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.doc_nonlicense}`);
-				setShowResumeModal(true);
+				setShowDocModal(true);
 			}else{
 				setViewPdf(`http://localhost:5500/uploads/${response.data.doc_nonlicense}`);
-				setShowResumeModal(true);
+				setShowDocModal(true);
 			}
 
 		} catch (error) {
@@ -500,10 +500,10 @@ useEffect(() => {
 				const selfDoc = await axios.get(`http://localhost:5500/api/getGenDocSelf/${std_id}`,
 				{});
 				setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.courtesy_license}`);
-				setShowResumeModal(true);
+				setShowDocModal(true);
 			}else{
 				setViewPdf(`http://localhost:5500/uploads/${response.data.courtesy_license}`);
-				setShowResumeModal(true);
+				setShowDocModal(true);
 			}
 			
 
@@ -524,10 +524,10 @@ useEffect(() => {
 				const selfDoc = await axios.get(`http://localhost:5500/api/getGenDocSelf/${std_id}`,
 				{});
 				setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.intern_letter}`);
-				setShowResumeModal(true);
+				setShowDocModal(true);
 			}else{
 				setViewPdf(`http://localhost:5500/uploads/${response.data.intern_letter}`);
-				setShowResumeModal(true);
+				setShowDocModal(true);
 			}
 
 		} catch (error) {
@@ -706,6 +706,7 @@ useEffect(() => {
 								): <p>กรุณาตั้งค่าเอกสาร</p>}
 							</th>
 							<td>
+							{/* ไม่ได้ใช้ */}
 							<Link to={"#"}>
 								<button type="button" className={`btn btn-secondary m-1`}>
 								<FontAwesomeIcon icon={faEye} />
@@ -923,64 +924,23 @@ useEffect(() => {
           <Modal.Title>Create Document</Modal.Title>
         </Modal.Header>
 		<Modal.Body>
-		<Form>
-			{/* Add more input fields as needed */}
-			<Form.Group controlId="formNumber">
-			<Form.Label>เลขที่เอกสารขอความอนุเคราะห์</Form.Label><span className="text-danger">*</span>
-			<Form.Control
-				type="text"
-				placeholder="Enter number courtesy"
-				required  //ไม่เห็นได้
-				//set state ภายใน
-				value={editData.number_courtesy}
-				onChange={(e) => setEditData({
-				...editData,
-				number_courtesy: e.target.value
-				})}
-			/>
-			</Form.Group>
-
-			<Form.Group controlId="formNumber">
-			<Form.Label>เลขที่เอกสารหนังสือส่งตัว</Form.Label><span className="text-danger">*</span>
-			<Form.Control
-				type="text"
-				placeholder="๔๔"
-			
-				//set state ภายใน
-				value={editData.number_letter || ""}
-				onChange={(e) => setEditData({
-				...editData,
-				number_letter: e.target.value
-				})}
-			/>
-			</Form.Group>
-
-			<Form.Group controlId="formDate">
-			<Form.Label>วันที่ออกเอกสาร</Form.Label>
-			<Form.Control
-				type="text"
-				value={editData.date}
-				onChange={(e) => setEditData({
-				...editData,
-				date: e.target.value
-				})}
-			/>
-			</Form.Group>
-
-			<Form.Group controlId="formTo">
-			<Form.Label>เรียน</Form.Label>
-			<Form.Control
-				type="text"
-				placeholder="Enter 'name_to'"
-				value={editData.name_to}
-				onChange={(e) => setEditData({
-				...editData,
-				name_to: e.target.value
-				})}
-			/>
-			</Form.Group>
-		</Form>
-		</Modal.Body>
+			<div className="mb-3">
+				<h6 className="fw-bold">เลขที่เอกสารขอความอนุเคราะห์:</h6>
+				<span className="text-muted">{editData.number_courtesy}</span>
+			</div>
+			<div className="mb-3">
+				<h6 className="fw-bold">เลขที่เอกสารหนังสือส่งตัว:</h6>
+				<span className="text-muted">{editData.number_letter || ""}</span>
+			</div>
+			<div className="mb-3">
+				<h6 className="fw-bold">วันที่ออกเอกสาร:</h6>
+				<span className="text-muted">{editData.date}</span>
+			</div>
+			<div className="mb-3">
+				<h6 className="fw-bold">เรียน:</h6>
+				<span className="text-muted">{editData.name_to}</span>
+			</div>
+			</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleModalClose}>
             Close
@@ -1400,8 +1360,8 @@ useEffect(() => {
 
 	  {/* Modal show preview DOC */}
 	  <Modal
-				show={showResumeModal}
-				onHide={() => setShowResumeModal(false)}
+				show={showDocModal}
+				onHide={() => setShowDocModal(false)}
 				centered
 				size="lg"
 			>
@@ -1426,7 +1386,7 @@ useEffect(() => {
 					</div>
 				</Modal.Body>
 				<Modal.Footer>
-					<Button variant="secondary" onClick={() => setShowResumeModal(false)}>
+					<Button variant="secondary" onClick={() => setShowDocModal(false)}>
 						Close
 					</Button>
 				</Modal.Footer>
