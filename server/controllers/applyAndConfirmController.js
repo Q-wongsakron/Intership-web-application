@@ -4,6 +4,16 @@ const { student, employer, posts_job, apply, confirm, studentCsv,document,edit_c
 const { smtpPass } = require("../config");
 db.sequelize.sync();
 
+let currentDate = Date.now();
+let date_ob = new Date(currentDate);
+let currentMonth = date_ob.getMonth() + 1;
+let semesterYear = date_ob.getFullYear() + 543
+
+if(currentMonth >= 7 && currentMonth <= 12){
+  semesterYear = date_ob.getFullYear() + 543
+}else if(currentMonth >= 1 && currentMonth <= 6)
+  semesterYear = date_ob.getFullYear() + 542
+
 //for new apply
 exports.createApply = async (req, res) => {
   try {
@@ -30,6 +40,7 @@ exports.createApply = async (req, res) => {
           employer_id: posts_data.emp_id,
           job_id: posts_data.job_id,
           position: position,
+          academic_year: semesterYear
         });
   
         const updateStatus = await student.update(
@@ -81,6 +92,7 @@ exports.confirmApply = async (req, res) => {
         job_id: applyDetails.job_id,
         position: applyDetails.position,
         require_doc: require_doc,
+        academic_year: semesterYear
       });
       const updateStatus = await student.update(
         {

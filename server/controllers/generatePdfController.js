@@ -15,6 +15,7 @@ if(currentMonth >= 7 && currentMonth <= 12){
 }else if(currentMonth >= 1 && currentMonth <= 6)
     semesterYear = date_ob.getFullYear() + 542
 semesterYear = semesterYear.toString();
+
 // use to convert to thai number
 function convertToThaiNumber(arabicNumber) {
     const thaiNumbers = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
@@ -130,7 +131,8 @@ exports.preCreateCourtesy = async (req, res) => {
                 number_courtesy: number_courtesy,
                 number_letter:number_letter,
                 date: date,
-                name_to: name_to
+                name_to: name_to,
+                academic_year: semesterYear
         })
         
         
@@ -157,7 +159,8 @@ exports.editPreCreateCourtesy = async (req, res) => {
                 number_courtesy: number_courtesy,
                 number_letter: number_letter,
                 date: date,
-                name_to: name_to
+                name_to: name_to,
+                academic_year: semesterYear
         }, {where: {std_id : std_id}})
         
         
@@ -213,7 +216,8 @@ exports.createCourtesy = async (req, res) => {
                 employer_id: employer_id,
                 doc_nonlicense: `${semesterYear}/${std_id}/doc_nonlicense_${std_id}.pdf`,
                 courtesy_license: `${semesterYear}/${std_id}/courtesy_license_${std_id}.pdf`,
-                intern_letter: `${semesterYear}/${std_id}/letter_license_${std_id}.pdf`
+                intern_letter: `${semesterYear}/${std_id}/letter_license_${std_id}.pdf`,
+                academic_year: semesterYear
             })
             // udate status in confirm database
             const updateStatus = await confirm.update(
@@ -299,7 +303,8 @@ exports.createMultiCourtesy = async (req, res) => {
                         employer_id: item.employer_id,
                         doc_nonlicense: `${semesterYear}/${item.std_id}/doc_nonlicense_${item.std_id}.pdf`,
                         courtesy_license: `${semesterYear}/${item.std_id}/courtesy_license_${item.std_id}.pdf`,
-                        intern_letter: `${semesterYear}/${item.std_id}/letter_license_${item.std_id}.pdf`
+                        intern_letter: `${semesterYear}/${item.std_id}/letter_license_${item.std_id}.pdf`,
+                        academic_year: semesterYear
                     });
 
                     const updateStatus = await confirm.update(
@@ -385,7 +390,8 @@ exports.createMultiCourtesySelf = async (req, res) => {
                         self_enroll_id: item.self_enroll_id,
                         doc_nonlicense: `${semesterYear}/${item.std_id}/doc_nonlicense_${item.std_id}.pdf`,
                         courtesy_license: `${semesterYear}/${item.std_id}/courtesy_license_${item.std_id}.pdf`,
-                        intern_letter: `${semesterYear}/${item.std_id}/letter_license_${item.std_id}.pdf`
+                        intern_letter: `${semesterYear}/${item.std_id}/letter_license_${item.std_id}.pdf`,
+                        academic_year: semesterYear
                     });
 
                     const updateStatus = await self_enroll.update(
@@ -457,7 +463,8 @@ exports.editCourtesy = async (req, res) => {
             number_courtesy: number_courtesy,
             number_letter: number_letter,
             date: date,
-            name_to: name_to
+            name_to: name_to,
+            academic_year: semesterYear
         },{where: {std_id: std_id }}
         )
         
@@ -516,7 +523,8 @@ exports.createCourtesySelf = async (req, res) => {
                 self_enroll_id: self_enroll_id,
                 doc_nonlicense: `${semesterYear}/${std_id}/doc_nonlicense_${std_id}.pdf`,
                 courtesy_license: `${semesterYear}/${std_id}/courtesy_license_${std_id}.pdf`,
-                intern_letter: `${semesterYear}/${std_id}/letter_license_${std_id}.pdf`
+                intern_letter: `${semesterYear}/${std_id}/letter_license_${std_id}.pdf`,
+                academic_year: semesterYear
             })
             // udate status in confirm database
             const updateStatus = await self_enroll.update(

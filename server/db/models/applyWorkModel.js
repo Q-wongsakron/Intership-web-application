@@ -19,6 +19,12 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: Sequelize.NOW(),
         field: "date_apply",
       },
+      
+      academic_year: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+        field: "academic_year",
+      }
     },
     {
       tableName: "apply",

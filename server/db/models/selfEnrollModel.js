@@ -59,6 +59,11 @@ module.exports = (sequelize, Sequelize) => {
                 allowNull: true,
                 field: "status",
             },
+            academic_year: {
+                type: Sequelize.STRING(50),
+                allowNull: false,
+                field: "academic_year",
+              }
         },
         {
             tableName:"self_enroll",

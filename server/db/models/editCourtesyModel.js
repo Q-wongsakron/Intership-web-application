@@ -28,6 +28,11 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           field: "name_to",
         },
+        academic_year: {
+          type: Sequelize.STRING(50),
+          allowNull: false,
+          field: "academic_year",
+        }
       },
       {
         tableName: "edit_courtesy",
