@@ -6,33 +6,64 @@ import btn from "../../components/btn.module.css";
 import AlertBox from "../../components/AlertBox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import { Modal, Button } from "react-bootstrap";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+
 import axios from "axios";
 
 function EmConfirmApply() {
 	const [data, setData] = useState([]);
 
+	const [showResumeModal, setShowResumeModal] = useState(false);
+	const [showRefuseModal, setShowRefuseModal] = useState(false);
+	const [showProfileModal, setShowProfileModal] = useState(false);
+	const [selectedStudentDetails, setSelectedStudentDetails] = useState(null);
+	const [selectedConfirmId, setSelectedConfirmId] = useState(null);
+	const [selectedStudentName, setSelectedStudentName] = useState(null);
+
+	const [viewPdf, setViewPdf] = useState(null);
+
 	const { user } = useSelector((state) => ({ ...state }));
 
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const response = await axios.get(
-					"http://localhost:5500/api/allConfirm",
-					{
-						headers: {
-							authtoken: user.user.token,
-						},
-					}
-				);
-				console.log(response.data);
-				setData(response.data);
-			} catch (error) {
-				console.error("Error fetching data:", error);
-			}
-		};
+	const renderToolbar = (Toolbar) => (
+		<>
+			<Toolbar />
+			<div
+				style={{
+					borderTop: "1px solid rgba(0, 0, 0, 0.1)",
+					marginTop: "4px",
+					padding: "4px",
+				}}
+			></div>
+		</>
+	);
 
+		const defaultLayoutPluginInstance = defaultLayoutPlugin({
+		renderToolbar,
+	});
+
+	const fetchData = async () => {
+		try {
+			const response = await axios.get(
+				"http://localhost:5500/api/allConfirm",
+				{
+					headers: {
+						authtoken: user.user.token,
+					},
+				}
+			);
+			console.log(response.data);
+			setData(response.data);
+		} catch (error) {
+			console.error("Error fetching data:", error);
+		}
+	};
+	useEffect(() => {
 		fetchData();
-	}, [user.user.token]);
+	}, []);
 
 	const [selectedSearchField, setSelectedSearchField] = useState("position");
 	const [searchQuery, setSearchQuery] = useState("");
@@ -67,6 +98,58 @@ function EmConfirmApply() {
 		}
 	});
 
+
+	const handleViewProfile = async (std_id) => {
+		try {
+			const response = await axios.get(
+				`http://localhost:5500/api/profileStudent/${std_id}`,
+				{}
+			);
+			console.log(response.data);
+			setSelectedStudentDetails(response.data);
+			setShowProfileModal(true);
+		} catch (error) {
+			console.error("Error fetching student details:", error);
+		}
+	};
+
+	const handleViewResume = async (std_id) => {
+		try {
+			const response = await axios.get(
+				`http://localhost:5500/api/profileStudent/${std_id}`,
+				{}
+			);
+			console.log(response.data);
+			setViewPdf(`http://localhost:5500/uploads/${response.data.resume}`);
+			setShowResumeModal(true);
+		} catch (error) {
+			console.error("Error fetching student details:", error);
+		}
+	};
+	const handleRefuseConfirm = (apply_id, displayname_th) => {
+		setSelectedConfirmId(apply_id);
+		setSelectedStudentName(displayname_th);
+		setShowRefuseModal(true);
+	};
+	const refuseConfirm = async () => {
+		try {
+			const response = await axios.delete(
+				`http://localhost:5500/api/refuseConfirm/${selectedConfirmId}`,
+				{
+					headers: {
+						authtoken: user.user.token,
+					},
+				}
+			);
+			console.log(response.data);
+			// You might want to handle the success or update the UI accordingly
+			// For example, close the modal and refresh the data
+			setShowRefuseModal(false);
+			fetchData();
+		} catch (error) {
+			console.error(error);
+		}
+	};
 	return (
 		<div className="container p-3 p-md-4 container-card">
 			<div className="d-flex justify-content-between mb-4">
@@ -139,22 +222,209 @@ function EmConfirmApply() {
 								<td>เอกสารขอความอนุเคราะห์</td>
 								<td>{data.date_confirm}</td>
 								<td>
-									<Link to={`/resume/${data.std_id}`}>
-										{data.resume ? "View Resume" : "No Resume"}
-									</Link>
+									<div>
+										<a href="#" onClick={() => handleViewResume(data.student.std_id)}>
+											Resume
+										</a>
+									</div>
 								</td>
 								<td>
-									<Link to={"#"}>
-										<button type="button" className={`btn btn-secondary m-1`}>
-											<FontAwesomeIcon icon={faEye} />
-										</button>
-									</Link>
+									
+									<button
+										className={`btn btn-sm btn-outline-secondary`}
+										onClick={() => handleViewProfile(data.student.std_id)}
+									>
+										<FontAwesomeIcon icon={faEye} />
+									</button>
+									<button
+										className={`btn btn-sm btn-outline-danger ms-2`}
+										onClick={() =>
+											handleRefuseConfirm(data.confirm_id, data.student.displayname_th)
+										}
+									>
+										<FontAwesomeIcon icon={faTimes} />
+									</button>
+									
 								</td>
 							</tr>
 						))}
 					</tbody>
 				</table>
 			</div>
+			<Modal
+				show={showRefuseModal}
+				onHide={() => setShowRefuseModal(false)}
+				centered
+			>
+				<Modal.Header closeButton>
+					<Modal.Title className="fw-bold">
+						ยืนยันการปฏิเสธรับนักศึกษาฝึกงาน
+					</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					คุณยืนยันที่จะปฏิเสธรับนักศึกษา {selectedStudentName} เข้าฝึกงาน
+				</Modal.Body>
+				<Modal.Footer>
+					<Button variant="secondary" onClick={() => setShowRefuseModal(false)}>
+						ปิด
+					</Button>
+					<Button variant="danger" onClick={refuseConfirm}>
+						ยืนยัน
+					</Button>
+				</Modal.Footer>
+			</Modal>
+
+			<Modal
+				show={showProfileModal}
+				onHide={() => setShowProfileModal(false)}
+				centered
+				size="lg"
+			>
+				<Modal.Header closeButton>
+					<Modal.Title>Student Profile</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					{selectedStudentDetails && (
+						<div className="row">
+							<div className="col-12">
+								<div className="stdProfileDetail px-2 pt-3">
+									<div className="row">
+										<div className="col-sm-6 stdName">
+											<p className="fw-bold">ชื่อ-นามสกุล</p>
+											{selectedStudentDetails ? (
+												<h6>{selectedStudentDetails.displayname_th}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+										<div className="col-sm-6 mt-2 mt-sm-0 stdSurname">
+											<p className="fw-bold">ชื่อ-นามสกุล (ภาษาอังกฤษ)</p>
+											{selectedStudentDetails ? (
+												<h6>{selectedStudentDetails.displayname_en}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+									</div>
+									<div className="row mt-3">
+										<div className="col-sm-6 std_id">
+											<p className="fw-bold">รหัสนักศึกษา</p>
+											{selectedStudentDetails ? (
+												<h6>{selectedStudentDetails.std_id}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+										<div className="col-sm-6 mt-2 mt-sm-0 stdDepartment">
+											<p className="fw-bold">ภาควิชา</p>
+											{selectedStudentDetails ? (
+												<h6>{selectedStudentDetails.department}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+									</div>
+									<div className="row mt-3">
+										<div className="col-sm-6 stdFaculty">
+											<p className="fw-bold">คณะ</p>
+											{selectedStudentDetails ? (
+												<h6>{selectedStudentDetails.faculty}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+										<div className="col-sm-6 mt-2 mt-sm-0 stdPhone">
+											<p className="fw-bold">GPA</p>
+											{selectedStudentDetails.gpa ? (
+												<h6>{selectedStudentDetails.gpa}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+									</div>
+									<div className="row mt-3">
+										<div className="col-sm-6 stdFaculty">
+											<p className="fw-bold">ประสบการณ์</p>
+											{selectedStudentDetails.experience ? (
+												<h6>{selectedStudentDetails.experience}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+										<div className="col-sm-6 mt-2 mt-sm-0 stdPhone">
+											<p className="fw-bold">ทักษะ</p>
+											{selectedStudentDetails.skill ? (
+												<h6>{selectedStudentDetails.skill}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+									</div>
+									<div className="row mt-3">
+										<div className="col-sm-6 stdMail">
+											<p className="fw-bold">อีเมล</p>
+											{selectedStudentDetails ? (
+												<h6>{selectedStudentDetails.email}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+										<div className="col-sm-6 mt-2 mt-sm-0 stdPhone">
+											<p className="fw-bold">โทรศัพท์</p>
+											{selectedStudentDetails.tel ? (
+												<h6>{selectedStudentDetails.tel}</h6>
+											) : (
+												<p className="text-muted">-</p>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
+				</Modal.Body>
+				<Modal.Footer>
+					<Button
+						variant="secondary"
+						onClick={() => setShowProfileModal(false)}
+					>
+						Close
+					</Button>
+				</Modal.Footer>
+			</Modal>
+
+			<Modal
+				show={showResumeModal}
+				onHide={() => setShowResumeModal(false)}
+				centered
+				size="lg"
+			>
+				<Modal.Header closeButton>
+					<Modal.Title>Student Resume</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					<div>
+						<Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+							{viewPdf && (
+								<Viewer
+									fileUrl={viewPdf}
+									// httpHeaders={{
+									// 	authtoken: user.user.token,
+									// }}
+									plugins={[defaultLayoutPluginInstance]}
+									// withCredentials={true}
+								/>
+							)}
+							{!viewPdf && <p>No PDF</p>}
+						</Worker>
+					</div>
+				</Modal.Body>
+				<Modal.Footer>
+					<Button variant="secondary" onClick={() => setShowResumeModal(false)}>
+						Close
+					</Button>
+				</Modal.Footer>
+			</Modal>
 		</div>
 	);
 

@@ -122,7 +122,7 @@ function HeadDocs() {
 	</>
 );
 
-const defaultLayoutPluginInstance = defaultLayoutPlugin({
+    const defaultLayoutPluginInstance = defaultLayoutPlugin({
 	renderToolbar,
 });
 

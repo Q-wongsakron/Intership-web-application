@@ -1,6 +1,6 @@
 const db = require("../db/index");
 const nodemailer = require('nodemailer');
-const { student, employer, posts_job, apply, confirm, studentCsv,document } = db;
+const { student, employer, posts_job, apply, confirm, studentCsv,document,edit_courtesy,gen_document } = db;
 const { smtpPass } = require("../config");
 db.sequelize.sync();
 
@@ -154,6 +154,41 @@ exports.refuseApply = async (req, res) => {
         where: { std_id: applyDetails.std_id },
       }
     );
+    res.status(200).json({ message: "success refuse" });
+  } catch (err) {
+    console.error(err);
+    req.status(500).json({ message: "server error" });
+  }
+};
+
+// for cancle confirm
+exports.refuseConfirm = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const confirmDetails = await confirm.findOne({
+      where: { confirm_id: id },
+    });
+
+    await edit_courtesy.destroy({
+      where: { std_id: confirmDetails.std_id },
+    })
+
+    await gen_document.destroy({
+      where: { std_id: confirmDetails.std_id },
+    })
+
+    const updateStatus = await student.update(
+      {
+        status: "0",
+      },
+      {
+        where: { std_id: confirmDetails.std_id },
+      }
+    );
+
+    const refuseConfirm = await confirm.destroy({
+      where: { confirm_id: id },
+    });
     res.status(200).json({ message: "success refuse" });
   } catch (err) {
     console.error(err);
