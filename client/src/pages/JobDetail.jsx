@@ -209,7 +209,7 @@ export default function JobDetail() {
 										<img
 											src={
 												jobData.profile.company_pic
-													? jobData.profile.company_pic
+													? `http://localhost:5500/uploads/${jobData.profile.company_pic}`
 													: employerDefaultImg
 											}
 											alt="Company Logo Image"

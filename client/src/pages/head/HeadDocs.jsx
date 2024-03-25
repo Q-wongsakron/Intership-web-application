@@ -35,7 +35,8 @@ function HeadDocs() {
   const [modalData, setModalData] = useState({}); // Store data for the modal fields
   const [editModalData, setEditModalData] = useState({std_id: "",}); // Store data for the edit
   const [editData, setEditData] = useState({
-	number: "",
+	number_courtesy: "",
+	number_letter: "",
 	date: "",
 	name_to:""
   }); // Store data for featch Edit
@@ -197,7 +198,8 @@ useEffect(() => {
 					setEditData(
 					{
 					std_id: item.std_id || "",
-					number: item.number || "",
+					number_courtesy: item.number_courtesy || "",
+					number_letter: item.number_letter || "",
 					date: item.date || "",
 					name_to: item.name_to || "", 
 					  });
@@ -263,7 +265,8 @@ useEffect(() => {
 					{
 					std_id: allEditData[i].std_id || "",
 					employer_id: employer_id || "",
-					number: allEditData[i].number || "",
+					number_courtesy: allEditData[i].number_courtesy || "",
+					number_letter: allEditData[i].number_letter || "",
 					date: allEditData[i].date || "",
 					name_to: allEditData[i].name_to || "", 
 					  });
@@ -309,7 +312,8 @@ useEffect(() => {
 						{
 						std_id: allEditData[i].std_id || "",
 						self_enroll_id: self_enroll_id || "",
-						number: allEditData[i].number || "",
+						number_courtesy: allEditData[i].number_courtesy || "",
+						number_letter: allEditData[i].number_letter || "",
 						date: allEditData[i].date || "",
 						name_to: allEditData[i].name_to || "", 
 						  });
@@ -365,8 +369,8 @@ useEffect(() => {
 	const preCreate =  await axios.post("http://localhost:5500/api/preCreateCourtesy",
 		{
 			std_id: modalData.std_id,
-			
-			number: modalData.number,
+			number_courtesy: modalData.number_courtesy,
+			number_letter: modalData.number_letter,
 			date: modalData.date,
 			name_to: modalData.name_to,
 		}
@@ -379,7 +383,8 @@ useEffect(() => {
  const handleEditPreModalSave = async() => {
 	const editPreCreate  = await axios.put("http://localhost:5500/api/editPreCreateCourtesy",{
 		std_id: editData.std_id,
-		number: editData.number,
+		number_courtesy: editData.number_courtesy,
+		number_letter: editData.number_letter,
 		date: editData.date,
 		name_to: editData.name_to,
 	},)
@@ -395,7 +400,8 @@ useEffect(() => {
 	const  createDoc = await axios.post(`http://localhost:5500/api/genPdf`,{
 		std_id: editData.std_id,
 		employer_id: editData.employer_id,
-		number: editData.number,
+		number_courtesy: editData.number_courtesy,
+		number_letter: editData.number_letter,
 		date: editData.date,
 		name_to: editData.name_to,
 	})
@@ -409,7 +415,8 @@ useEffect(() => {
 		const  createDoc = await axios.post(`http://localhost:5500/api/genPdfSelf`,{
 			std_id: editData.std_id,
 			self_enroll_id: editData.self_enroll_id,
-			number: editData.number,
+			number_courtesy: editData.number_courtesy,
+			number_letter: editData.number_letter,
 			date: editData.date,
 			name_to: editData.name_to,
 		})
@@ -423,7 +430,8 @@ useEffect(() => {
   const handleEditModalSave = async() => {
 	const editDoc = await axios.put("http://localhost:5500/api/editCourtesy",{
 		std_id: editModalData.std_id,
-		number: editData.number,
+		number_courtesy: editData.number_courtesy,
+		number_letter: editData.number_letter,
 		date: editData.date,
 		name_to: editData.name_to,
 	})
@@ -447,7 +455,8 @@ useEffect(() => {
 	  
   
 	  setEditData({
-		number: response.data.number || "",
+		number_courtesy: response.data.number_courtesy || "",
+		number_letter: response.data.number_letter || "",
 		date: response.data.date || "",
 		name_to: response.data.name_to || "", 
 	  });
@@ -468,10 +477,10 @@ useEffect(() => {
 			if(!response.data){
 				const selfDoc = await axios.get(`http://localhost:5500/api/getGenDocSelf/${std_id}`,
 				{});
-				setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.courtesy}`);
+				setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.doc_nonlicense}`);
 				setShowResumeModal(true);
 			}else{
-				setViewPdf(`http://localhost:5500/uploads/${response.data.courtesy}`);
+				setViewPdf(`http://localhost:5500/uploads/${response.data.doc_nonlicense}`);
 				setShowResumeModal(true);
 			}
 
@@ -506,13 +515,21 @@ useEffect(() => {
     // fetch Data from Gened DOC with Letter มาทำเพิ่ม
 	const handleViewLetter = async (std_id) => {
 		try {
+
 			const response = await axios.get(
 				`http://localhost:5500/api/getGenDoc/${std_id}`,
 				{}
 			);
-			
-			setViewPdf(`http://localhost:5500/uploads/${response.data.courtesy_license}`);
-			setShowResumeModal(true);
+			if(!response.data){
+				const selfDoc = await axios.get(`http://localhost:5500/api/getGenDocSelf/${std_id}`,
+				{});
+				setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.intern_letter}`);
+				setShowResumeModal(true);
+			}else{
+				setViewPdf(`http://localhost:5500/uploads/${response.data.intern_letter}`);
+				setShowResumeModal(true);
+			}
+
 		} catch (error) {
 			console.error("Error fetching student details:", error);
 		}
@@ -529,10 +546,10 @@ useEffect(() => {
 
     //     }));
     // };
-	const handleCheckboxChange = (index, std_id, employer_id, number, date, name_to, checked) => {
+	const handleCheckboxChange = (index, std_id, employer_id, number_courtesy, number_letter, date, name_to, checked) => {
 		setSelectedItems(prevState => {
 			const newSelectedItems = [...prevState];
-			const payload = { "std_id": std_id, "employer_id": employer_id, "number": number, "date": date, "name_to": name_to, "checked": checked };
+			const payload = { "std_id": std_id, "employer_id": employer_id, "number_courtesy": number_courtesy, "number_letter":number_letter, "date": date, "name_to": name_to, "checked": checked };
 			if (checked) {
 				// If checkbox is checked, add the payload to selectedItems
 				newSelectedItems.push(payload);
@@ -546,10 +563,10 @@ useEffect(() => {
 			return newSelectedItems;
 		});
 	};
-	const handleCheckboxChangeSelf = (index, std_id, self_enroll_id, number, date, name_to, checked) => {
+	const handleCheckboxChangeSelf = (index, std_id, self_enroll_id, number_courtesy, number_letter,date, name_to, checked) => {
 		setSelectedItemsSelf(prevState => {
 			const newSelectedItems = [...prevState];
-			const payload = { "std_id": std_id, "self_enroll_id": self_enroll_id, "number": number, "date": date, "name_to": name_to, "checked": checked };
+			const payload = { "std_id": std_id, "self_enroll_id": self_enroll_id, "number_courtesy": number_courtesy, "number_letter":number_letter, "date": date, "name_to": name_to, "checked": checked };
 			if (checked) {
 				// If checkbox is checked, add the payload to selectedItems
 				newSelectedItems.push(payload);
@@ -678,7 +695,8 @@ useEffect(() => {
 													i,
 													filteredData.student.std_id,
 													filteredData.employer.employer_id,
-													item.number,
+													item.number_courtesy,
+													item.number_letter,
 													item.date,
 													item.name_to, 
 													e.target.checked)}
@@ -759,16 +777,31 @@ useEffect(() => {
 		<Form>
 			{/* Add more input fields as needed */}
 			<Form.Group controlId="formNumber">
-			<Form.Label>เลขที่เอกสาร</Form.Label><span className="text-danger">*</span>
+			<Form.Label>เลขที่เอกสารขอความอนุเคราะห์</Form.Label><span className="text-danger">*</span>
 			<Form.Control
 				type="text"
 				placeholder="๓๓"
 			
 				//set state ภายใน
-				value={modalData.number || ""}
+				value={modalData.number_courtesy || ""}
 				onChange={(e) => setModalData({
 				...modalData,
-				number: e.target.value
+				number_courtesy: e.target.value
+				})}
+			/>
+			</Form.Group>
+
+			<Form.Group controlId="formNumber">
+			<Form.Label>เลขที่เอกสารหนังสือส่งตัว</Form.Label><span className="text-danger">*</span>
+			<Form.Control
+				type="text"
+				placeholder="๔๔"
+			
+				//set state ภายใน
+				value={modalData.number_letter || ""}
+				onChange={(e) => setModalData({
+				...modalData,
+				number_letter: e.target.value
 				})}
 			/>
 			</Form.Group>
@@ -819,16 +852,31 @@ useEffect(() => {
 		<Form>
 			{/* Add more input fields as needed */}
 			<Form.Group controlId="formNumber">
-			<Form.Label>เลขที่เอกสาร</Form.Label><span className="text-danger">*</span>
+			<Form.Label>เลขที่เอกสารขอความอนุเคราะห์</Form.Label><span className="text-danger">*</span>
 			<Form.Control
 				type="text"
-				placeholder="Enter number"
+				placeholder="Enter number courtesy"
 				required  //ไม่เห็นได้
 				//set state ภายใน
-				value={editData.number}
+				value={editData.number_courtesy}
 				onChange={(e) => setEditData({
 				...editData,
-				number: e.target.value
+				number_courtesy: e.target.value
+				})}
+			/>
+			</Form.Group>
+
+			<Form.Group controlId="formNumber">
+			<Form.Label>เลขที่เอกสารหนังสือส่งตัว</Form.Label><span className="text-danger">*</span>
+			<Form.Control
+				type="text"
+				placeholder="๔๔"
+			
+				//set state ภายใน
+				value={editData.number_letter || ""}
+				onChange={(e) => setEditData({
+				...editData,
+				number_letter: e.target.value
 				})}
 			/>
 			</Form.Group>
@@ -878,16 +926,31 @@ useEffect(() => {
 		<Form>
 			{/* Add more input fields as needed */}
 			<Form.Group controlId="formNumber">
-			<Form.Label>เลขที่เอกสาร</Form.Label><span className="text-danger">*</span>
+			<Form.Label>เลขที่เอกสารขอความอนุเคราะห์</Form.Label><span className="text-danger">*</span>
 			<Form.Control
 				type="text"
-				placeholder="Enter number"
+				placeholder="Enter number courtesy"
 				required  //ไม่เห็นได้
 				//set state ภายใน
-				value={editData.number}
+				value={editData.number_courtesy}
 				onChange={(e) => setEditData({
 				...editData,
-				number: e.target.value
+				number_courtesy: e.target.value
+				})}
+			/>
+			</Form.Group>
+
+			<Form.Group controlId="formNumber">
+			<Form.Label>เลขที่เอกสารหนังสือส่งตัว</Form.Label><span className="text-danger">*</span>
+			<Form.Control
+				type="text"
+				placeholder="๔๔"
+			
+				//set state ภายใน
+				value={editData.number_letter || ""}
+				onChange={(e) => setEditData({
+				...editData,
+				number_letter: e.target.value
 				})}
 			/>
 			</Form.Group>
@@ -1018,7 +1081,8 @@ useEffect(() => {
 													i,
 													filteredData.std_id,
 													filteredData.self_enroll_id,
-													item.number,
+													item.number_courtesy,
+													item.number_letter,
 													item.date,
 													item.name_to, 
 													e.target.checked)}
@@ -1097,16 +1161,31 @@ useEffect(() => {
 		<Form>
 			{/* Add more input fields as needed */}
 			<Form.Group controlId="formNumber">
-			<Form.Label>เลขที่เอกสาร</Form.Label><span className="text-danger">*</span>
+			<Form.Label>เลขที่เอกสารขอความอนุเคราะห์</Form.Label><span className="text-danger">*</span>
 			<Form.Control
 				type="text"
-				placeholder="Enter number"
+				placeholder="Enter number courtesy"
 				required  //ไม่เห็นได้
 				//set state ภายใน
-				value={editData.number}
+				value={editData.number_courtesy}
 				onChange={(e) => setEditData({
 				...editData,
-				number: e.target.value
+				number_courtesy: e.target.value
+				})}
+			/>
+			</Form.Group>
+
+			<Form.Group controlId="formNumber">
+			<Form.Label>เลขที่เอกสารหนังสือส่งตัว</Form.Label><span className="text-danger">*</span>
+			<Form.Control
+				type="text"
+				placeholder="๔๔"
+			
+				//set state ภายใน
+				value={editData.number_letter || ""}
+				onChange={(e) => setEditData({
+				...editData,
+				number_letter: e.target.value
 				})}
 			/>
 			</Form.Group>
@@ -1254,16 +1333,31 @@ useEffect(() => {
 		<Form>
 			{/* Add more input fields as needed */}
 			<Form.Group controlId="formNumber">
-			<Form.Label>เลขที่เอกสาร</Form.Label><span className="text-danger">*</span>
+			<Form.Label>เลขที่เอกสารขอความอนุเคราะห์</Form.Label><span className="text-danger">*</span>
 			<Form.Control
 				type="text"
-				placeholder="Enter number"
+				placeholder="Enter number courtesy"
 				required  //ไม่เห็นได้
 				//set state ภายใน
-				value={editData.number}
+				value={editData.number_courtesy}
 				onChange={(e) => setEditData({
 				...editData,
-				number: e.target.value
+				number_courtesy: e.target.value
+				})}
+			/>
+			</Form.Group>
+
+			<Form.Group controlId="formNumber">
+			<Form.Label>เลขที่เอกสารหนังสือส่งตัว</Form.Label><span className="text-danger">*</span>
+			<Form.Control
+				type="text"
+				placeholder="๔๔"
+			
+				//set state ภายใน
+				value={editData.number_letter || ""}
+				onChange={(e) => setEditData({
+				...editData,
+				number_letter: e.target.value
 				})}
 			/>
 			</Form.Group>

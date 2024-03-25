@@ -56,7 +56,7 @@ function EmProfile() {
 											<img
 												src={
 													data.profile.company_pic
-														? data.profile.company_pic
+														? `http://localhost:5500/uploads/${data.profile.company_pic}`
 														: employerDefaultImg
 												}
 												alt="Company Logo Image"

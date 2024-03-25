@@ -91,7 +91,7 @@ export default function Job({
 						<div className="col-12 col-md-3 col-xl-2 d-flex justify-content-md-center justify-content-lg-start">
 							<div className="job-card-img mb-3 mb-md-0">
 								<img
-									src={img ? img : employerDefaultImg}
+									src={img ? `http://localhost:5500/uploads/${img}` : employerDefaultImg}
 									alt="Company Logo Image"
 									className="img-fluid"
 								/>

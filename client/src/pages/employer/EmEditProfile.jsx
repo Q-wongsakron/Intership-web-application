@@ -5,7 +5,7 @@ import btn from "../../components/btn.module.css";
 import Loading from "../../components/Loading";
 
 import { useSelector } from "react-redux";
-
+import axios from "axios";
 import {
 	putEmployerProfile,
 	getEmployerProfile,
@@ -93,11 +93,21 @@ function EmEditProfile() {
 		setLoading(true);
 		try {
 			await putEmployerProfile(user.user.token, formData);
+
+			const formDataImg = new FormData();
+			formDataImg.append("EmployerImg", formData.employer_img);
+			await axios.put("http://localhost:5500/api/uploadEmployerImg", formDataImg, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+					authtoken: user.user.token, 
+				},
+				});
+
 			navigate("/employer/profile");
 		} catch (error) {
 			console.error(
 				"Update Profile Failed: ",
-				err.response ? err.response.data : err.message
+				error.response ? error.response.data : error.message
 			);
 		} finally {
 			setLoading(false);
@@ -114,6 +124,13 @@ function EmEditProfile() {
 		// 			err.response ? err.response.data : err.message
 		// 		);
 		// 	});
+	};
+	const handleEmployerImageFileChange = (e) => {
+		const file = e.target.files[0];
+		setFormData({
+			...formData,
+			employer_img: file,
+		});
 	};
 
 	useEffect(() => {
@@ -192,13 +209,12 @@ function EmEditProfile() {
 									<div className="col-sm-12 mt-2 mt-sm-0">
 										<p className="fw-bold">รูปโปรไฟล์</p>
 										<input
-											type="text"
-											id="company_pic"
-											className="form-control mb-2"
-											name="company_pic"
-											value={formData.company_pic}
-											onChange={handleInputChange}
-											maxLength={100}
+											className="form-control"
+											type="file"
+											id="EmployerImg"
+											accept=".jpg, .png"
+											
+											onChange={handleEmployerImageFileChange}
 										/>
 									</div>
 								</div>

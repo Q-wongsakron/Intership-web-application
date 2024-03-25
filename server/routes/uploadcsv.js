@@ -9,11 +9,13 @@ const {
   uploadReportDocx,
   uploadTimestampPdf,
   setup_courtesy_sig_img,
+  employerImg,
 } = require("../controllers/uploadFileController");
 const { auth, adminCheck } = require("../middleware/auth");
 const router = express.Router();
 
 router.put("/uploadSignatureImg",auth,upload.single("SignatureImg"), setup_courtesy_sig_img)
+router.put("/uploadEmployerImg",auth,upload.single("EmployerImg"), employerImg)
 
 router.post("/uploadCsv", auth, adminCheck, uploadcsv);
 

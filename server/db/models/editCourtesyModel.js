@@ -8,10 +8,15 @@ module.exports = (sequelize, Sequelize) => {
           autoInclement: true,
           field: "edit_id",
         },
-        number: {
+        number_courtesy: {
           type: Sequelize.STRING(100),
           allowNull: false,
-          field: "number",
+          field: "number_courtesy",
+        },
+        number_letter: {
+          type: Sequelize.STRING(100),
+          allowNull: false,
+          field: "number_letter",
         },
         date: {
           type: Sequelize.STRING(100),

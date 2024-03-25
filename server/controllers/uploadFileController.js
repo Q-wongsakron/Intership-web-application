@@ -3,9 +3,18 @@ const path = require("path");
 const fs = require("fs");
 
 const db = require("../db/index");
-const { studentCsv,student,document,setup_courtesy } = db;
+const { studentCsv,student,document,setup_courtesy,employer } = db;
 db.sequelize.sync();
 
+let currentDate = Date.now();
+let date_ob = new Date(currentDate);
+let currentMonth = date_ob.getMonth() + 1;
+let currentYear = date_ob.getFullYear() + 543
+
+if(currentMonth >= 7 && currentMonth <= 12){
+  currentYear = date_ob.getFullYear() + 543
+}else if(currentMonth >= 1 && currentMonth <= 6)
+  currentYear = date_ob.getFullYear() + 542
 
 exports.setup_courtesy_sig_img = async (req, res) => {
   try{
@@ -14,7 +23,7 @@ exports.setup_courtesy_sig_img = async (req, res) => {
     const lastSetup = setup.length - 1;
     console.log(setup)
     const upload_sig_img = await setup_courtesy.update({
-      signature_img: `2566/${req.user.username}/${req.file.originalname}`
+      signature_img: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { id : setup[lastSetup].id}})
     res.send("Signature Upload Successfully");
   }catch(err){
@@ -23,10 +32,22 @@ exports.setup_courtesy_sig_img = async (req, res) => {
   }
 }
 
+exports.employerImg = async (req, res) => {
+  try{
+    const uploadImg = await employer.update({
+      company_pic: `${currentYear}/${req.user.username}/${req.file.originalname}`
+    },{where: { employer_id : req.user.id}})
+    res.status(200).json({message: "upload employer image succress"})
+  }catch(err){
+    console.error(err)
+    res.status(500).json({message: "internal server error"})
+  }
+}
+
 exports.uploadFileResume = async (req, res) => {
   try {
     const uploadResume = await student.update({
-      resume: `2566/${req.user.username}/${req.file.originalname}`
+      resume: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { std_id : req.user.username}});
     res.send("Resume Upload Successfully");
   } catch (err) {
@@ -39,7 +60,7 @@ exports.uploadFileResume = async (req, res) => {
 exports.uploadReportPdf = async (req, res) => {
   try {
     const  ReportPdf = await document.update({
-      report_pdf: `2566/${req.user.username}/${req.file.originalname}`
+      report_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { std_id : req.user.username}});
     res.send("Upload Successfully");
   } catch (err) {
@@ -51,7 +72,7 @@ exports.uploadReportDocx = async (req, res) => {
   try {
     console.log(req)
     const ReportDocx = await document.update({
-      report_docx: `2566/${req.user.username}/${req.file.originalname}`
+      report_docx: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { std_id : req.user.username}});
     res.send("Upload Successfully");
   } catch (err) {
@@ -62,7 +83,7 @@ exports.uploadReportDocx = async (req, res) => {
 exports.uploadTimestampPdf = async (req, res) => {
   try {
     const Timestamp = await document.update({
-      timestamp_pdf: `2566/${req.user.username}/${req.file.originalname}`
+      timestamp_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { std_id : req.user.username}});
     res.send("Upload Successfully");
   } catch (err) {
@@ -73,7 +94,7 @@ exports.uploadTimestampPdf = async (req, res) => {
 exports.uploadPresentPdf= async (req, res) => {
   try {
     const PresentPdf = await document.update({
-      present_pdf: `2566/${req.user.username}/${req.file.originalname}`
+      present_pdf: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { std_id : req.user.username}});
     res.send("Upload Successfully");
   } catch (err) {
@@ -84,7 +105,7 @@ exports.uploadPresentPdf= async (req, res) => {
 exports.uploadPresentPpt = async (req, res) => {
   try {
     const PresentPpt = await document.update({
-      present_ppt: `2566/${req.user.username}/${req.file.originalname}`
+      present_ppt: `${currentYear}/${req.user.username}/${req.file.originalname}`
     },{where: { std_id : req.user.username}});
     res.send("Upload Successfully");
   } catch (err) {
@@ -98,7 +119,7 @@ exports.uploadPresentPpt = async (req, res) => {
 //     const uploadFile = await file_student.create({
 //       name: req.file.originalname,
 //       file_type: req.file.mimetype,
-//       file_url: `uploads/2566/documentStudent/resume/${req.file.originalname}`,
+//       file_url: `uploads/${currentYear}/documentStudent/resume/${req.file.originalname}`,
 //     });
 //     res.send("Resume Upload Successfully");
 //   } catch (err) {

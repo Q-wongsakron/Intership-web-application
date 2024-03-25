@@ -8,10 +8,10 @@ module.exports = (sequelize, Sequelize) => {
           autoInclement: true,
           field: "gen_self_id",
         },
-        courtesy: {
+        doc_nonlicense: {
           type: Sequelize.STRING(100),
           allowNull: true,
-          field: "courtesy",
+          field: "doc_nonlicense",
         },
         courtesy_license: {
           type: Sequelize.STRING(100),
