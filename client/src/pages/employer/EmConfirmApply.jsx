@@ -18,6 +18,7 @@ function EmConfirmApply() {
 	const [data, setData] = useState([]);
 
 	const [showResumeModal, setShowResumeModal] = useState(false);
+	
 	const [showRefuseModal, setShowRefuseModal] = useState(false);
 	const [showProfileModal, setShowProfileModal] = useState(false);
 	const [selectedStudentDetails, setSelectedStudentDetails] = useState(null);
@@ -150,6 +151,86 @@ function EmConfirmApply() {
 			console.error(error);
 		}
 	};
+
+		// fetch Data from Gened DOC with license
+	const handleViewCourtesyLic = async (std_id) => {
+			try {
+				const response = await axios.get(
+					`http://localhost:5500/api/getGenDoc/${std_id}`,
+					{}
+				);
+				if(!response.data){
+					const selfDoc = await axios.get(`http://localhost:5500/api/getGenDocSelf/${std_id}`,
+					{});
+					setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.courtesy_license}`);
+					setShowResumeModal(true);
+				}else{
+					setViewPdf(`http://localhost:5500/uploads/${response.data.courtesy_license}`);
+					setShowResumeModal(true);
+				}
+				
+	
+			} catch (error) {
+				console.error("Error fetching student details:", error);
+			}
+		};
+	
+		// fetch Data from Gened DOC with Letter มาทำเพิ่ม
+	const handleViewLetter = async (std_id) => {
+			try {
+	
+				const response = await axios.get(
+					`http://localhost:5500/api/getGenDoc/${std_id}`,
+					{}
+				);
+				if(!response.data){
+					const selfDoc = await axios.get(`http://localhost:5500/api/getGenDocSelf/${std_id}`,
+					{});
+					setViewPdf(`http://localhost:5500/uploads/${selfDoc.data.intern_letter}`);
+					setShowResumeModal(true);
+				}else{
+					setViewPdf(`http://localhost:5500/uploads/${response.data.intern_letter}`);
+					setShowResumeModal(true);
+				}
+	
+			} catch (error) {
+				console.error("Error fetching student details:", error);
+			}
+		};
+	// const hasCourtesyLic = async(std_id) => {
+	// 	try {
+	// 		const response = await axios.get(
+	// 			`http://localhost:5500/api/getGenDoc/${std_id}`,
+	// 			{}
+	// 		);
+	// 		console.log("hello you",response && response.data.courtesy_license !== undefined);
+	// 		return response && response.data.courtesy_license !== undefined;
+			
+	// 	} catch (error) {
+	// 		console.error("Error fetching student details:", error);
+	// 	}
+	// 		// return studentData && studentData.courtesy_license !== undefined;
+	// 	};
+		
+	// const hasDoc = async(std_id) => {
+	// 	try {
+	// 		const response = await axios.get(
+	// 			`http://localhost:5500/api/getGenDoc/${std_id}`,
+	// 			{}
+	// 		);
+	// 		const response2 = await axios.get(
+	// 			`http://localhost:5500/api/getGenDoc/${std_id}`,
+	// 			{}
+	// 		);
+	// 		console.log("hello you",response && response.data.courtesy_license !== undefined);
+	// 		return response && response.data.courtesy_license !== undefined;
+
+			
+	// 	} catch (error) {
+	// 		console.error("Error fetching student details:", error);
+	// 	}
+	// 		// return studentData && studentData.intern_letter !== undefined;
+	// 	};
 	return (
 		<div className="container p-3 p-md-4 container-card">
 			<div className="d-flex justify-content-between mb-4">
@@ -204,7 +285,7 @@ function EmConfirmApply() {
 							<th scope="col">อีเมล</th>
 							<th scope="col">เบอร์โทร</th>
 							<th scope="col">จากโพสต์</th>
-							<th scope="col">เอกสารขอความอนุเคราะห์</th>
+							<th scope="col">เอกสารจากภาควิชา</th>
 							<th scope="col">วันที่รับ</th>
 							<th scope="col">RESUME</th>
 							<th scope="col">ACTIONS</th>
@@ -219,7 +300,27 @@ function EmConfirmApply() {
 								<td>{data.student.email}</td>
 								<td>{data.student.tel}</td>
 								<td>{data.posts_job.job_title}</td>
-								<td>เอกสารขอความอนุเคราะห์</td>
+								<td>
+								{data.status != "รอดำเนินเอกสาร" ? (
+									<div>								
+										<Link to="#">
+											<button type="button" className={`btn btn-secondary m-1`} onClick={() => handleViewCourtesyLic(data.student.std_id)}>
+												<FontAwesomeIcon icon={faEye} />
+											</button>
+										</Link>
+										<Link to="#">
+											<button type="button" className={`btn btn-secondary m-1`} onClick={() => handleViewLetter(data.student.std_id)}>
+												<FontAwesomeIcon icon={faEye} />
+											</button>
+										</Link>
+									</div>
+								) : (
+									<p>รอดำเนินเอกสาร</p>
+								)}
+									
+						
+									
+							</td>
 								<td>{data.date_confirm}</td>
 								<td>
 									<div>
