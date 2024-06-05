@@ -13,7 +13,8 @@ function EmProfile() {
 	const [data, setData] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-	const { user } = useSelector((state) => ({ ...state }));
+	// const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	const fetchData = async (authtoken) => {
 		try {
@@ -56,7 +57,7 @@ function EmProfile() {
 											<img
 												src={
 													data.profile.company_pic
-														? `http://localhost:5500/uploads/${data.profile.company_pic}`
+														? import.meta.env.VITE_FILE_API+`/uploads/${data.profile.company_pic}`
 														: employerDefaultImg
 												}
 												alt="Company Logo Image"

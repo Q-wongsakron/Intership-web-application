@@ -18,7 +18,7 @@ import PageNotFound from "../PageNotFound";
 import PrivacyPolicyPopup from "../../components/PrivacyPolicyPopup";
 
 function ExRegister() {
-	const [errorMessage, setErrorMessage] = useState(null);
+	const [errorMessage, setErrorMessage] = useState({});
 
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
@@ -29,6 +29,7 @@ function ExRegister() {
 		confirmPassword: "",
 		company_name: "",
 		address: "",
+		email: "",
 		subdistrict: "",
 		district: "",
 		province: "",
@@ -46,7 +47,7 @@ function ExRegister() {
 		subdistrict: formData.subdistrict,
 		district: formData.district,
 		province: formData.province,
-
+		email: formData.email,
 		pcode: formData.pcode,
 		contact_name: formData.contact_name,
 		contact_email: formData.contact_email,
@@ -61,17 +62,32 @@ function ExRegister() {
 		subdistrict: "",
 		district: "",
 		province: "",
-
+		email: "",
 		pcode: "",
 		contact_name: "",
 		contact_email: "",
 		contact_tel: "",
 	});
 
+	const [passwordError, setPasswordError] = useState("");
+	const isValidPassword = (password) => {
+		const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+		return passwordRegex.test(password);
+	};
 	const handleInputChange = (e) => {
 		e.preventDefault();
 
 		const { name, value } = e.target;
+
+		if (name === "password") {
+			if (!isValidPassword(value)) {
+				setPasswordError(
+					"รหัสผ่านต้องมีอย่างน้อย 8 อักขระ, รวมถึงตัวพิมพ์ใหญ่, ตัวพิมพ์เล็ก, และตัวเลข"
+				);
+			} else {
+				setPasswordError("");
+			}
+		}
 
 		setFormData({
 			...formData,
@@ -95,7 +111,7 @@ function ExRegister() {
 			...errors,
 			[name]: "",
 		});
-		setErrorMessage("");
+		setErrorMessage({});
 	};
 	const handleThailandAddressChange = (newValue) => {
 		// Destructure the newValue object to extract the relevant values
@@ -112,6 +128,7 @@ function ExRegister() {
 
 		// Reset errors for all fields
 		setErrors({
+			...errors,
 			district: "",
 			postalCode: "",
 			province: "",
@@ -128,9 +145,18 @@ function ExRegister() {
 		}
 		if (!formData.password.trim()) {
 			newErrors.password = "กรุณากรอกรหัสผ่าน";
+		} else {
+			if (!isValidPassword(formData.password)) {
+				// newErrors.password =
+				// 	"รหัสผ่านควรมีอย่างน้อย 8 อักขระ, รวมถึงตัวพิมพ์ใหญ่, ตัวพิมพ์เล็ก, และตัวเลข";
+				newErrors.password = passwordError;
+			}
 		}
 		if (formData.password !== formData.confirmPassword) {
 			newErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
+		}
+		if (!formData.email.trim()) {
+			newErrors.email = "กรุณากรอกอีเมล์";
 		}
 		if (!formData.contact_name.trim()) {
 			newErrors.contact_name = "กรุณากรอกชื่อผู้ติดต่อ";
@@ -166,44 +192,52 @@ function ExRegister() {
 		} else {
 			register(formToSend)
 				.then((res) => {
-					if (res.data === "User already Exits!!") {
-						setErrorMessage("ชื่อผู้ใช้นี้ถูกใช้งานแล้ว");
-					} else {
-						const formToLogin = {
-							username: formData.username,
-							password: formData.password,
-						};
+					const formToLogin = {
+						usernameOrEmail: formData.email,
+						password: formData.password,
+					};
 
-						login(formToLogin)
-							.then((res) => {
-								dispatch(
-									loginRedux({
-										token: res.data.token,
-										username: res.data.payload.user.username, // will delete
-										role: res.data.payload.user.role, //
-									})
+					login(formToLogin)
+						.then((res) => {
+							dispatch(
+								loginRedux({
+									token: res.data.token,
+									username: res.data.payload.user.username, // will delete
+									email: res.data.payload.user.email,
+									role: res.data.payload.user.role, //
+									isVerified: res.data.payload.user.verified,
+								})
+							);
+							localStorage.setItem("token", res.data.token);
+							// localStorage.setItem("role", res.data.payload.user.role);
+
+							navigate("/check-verify-email");
+						})
+						.catch((err) => {
+							if (err.response && err.response.status === 401) {
+								setErrorMessage({ other: err.response.data.message });
+							} else {
+								console.error(
+									"Login failed: ",
+									err.response ? err.response.data : err.message
 								);
-								localStorage.setItem("token", res.data.token);
-								// localStorage.setItem("role", res.data.payload.user.role);
-
-								navigate("/");
-							})
-							.catch((err) => {
-								if (err.response && err.response.status === 401) {
-									setErrorMessage(err.response.data.message);
-								} else {
-									console.error(
-										"Login failed: ",
-										err.response ? err.response.data : err.message
-									);
-								}
-							});
-					}
+							}
+						});
 				})
 				.catch((err) => {
 					if (err.response && err.response.status === 401) {
-						setErrorMessage(err.response.data.message);
+						setErrorMessage({ other: err.response.data.message });
 					} else {
+						if (err.response.data === "Username and Email already exists!") {
+							setErrorMessage({
+								email: "อีเมลนี้ถูกใช้งานแล้ว",
+								username: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว",
+							});
+						} else if (err.response.data === "Username already exists!") {
+							setErrorMessage({ username: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว" });
+						} else if (err.response.data === "Email already exists!") {
+							setErrorMessage({ email: "อีเมลนี้ถูกใช้งานแล้ว" });
+						}
 						console.error(
 							"Register failed: ",
 							err.response ? err.response.data : err.message
@@ -225,13 +259,13 @@ function ExRegister() {
 		}
 	};
 
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	return !(user && user.user.token) ? (
 		<div className="bg-light">
 			<div className="container p-5 h-100">
 				<div className="row justify-content-center align-items-center h-100">
-					<div className="col-12 col-md-10 col-lg-8 col-xl-8 h-100">
+					<div className="col-12 col-md-10 col-lg-8 h-100">
 						<div className={`login_card h-100`}>
 							<div className="card-body p-4">
 								<h2 className="text-center">ลงทะเบียน (บริษัท/หน่วยงาน)</h2>
@@ -246,9 +280,14 @@ function ExRegister() {
 									onSubmit={handleSubmit}
 								>
 									<div className="row">
-										<div className="col-sm mx-2">
+										<div className="col-lg mx-1">
 											<br />
-											<p className="text-center text-muted">ข้อมูลผู้ใช้</p>
+											{/* <p className="text-center text-muted">ข้อมูลผู้ใช้</p> */}
+											<div className="bg-dark p-2 mb-2 rounded-top">
+												<p className="text-white fw-bold m-auto">
+													ข้อมูลผู้ใช้
+												</p>
+											</div>
 											<div className="mb-3">
 												<label className="form-label" htmlFor="username">
 													ชื่อผู้ใช้ <span className="text-danger">*</span>
@@ -261,9 +300,30 @@ function ExRegister() {
 													value={formData.username}
 													onChange={handleUsernameChange}
 												/>
-												{(errors.username || errorMessage) && (
+												{(errors.username || errorMessage.username) && (
 													<p className="text-danger">
-														{errors.username ? errors.username : errorMessage}
+														{errors.username
+															? errors.username
+															: errorMessage.username}
+													</p>
+												)}
+											</div>
+
+											<div className="mb-3">
+												<label className="form-label" htmlFor="email">
+													อีเมลผู้ใช้ <span className="text-danger">*</span>
+												</label>
+												<input
+													type="text"
+													id="email"
+													className="form-control"
+													name="email"
+													value={formData.email}
+													onChange={handleUsernameChange}
+												/>
+												{(errors.email || errorMessage.email) && (
+													<p className="text-danger">
+														{errors.email ? errors.email : errorMessage.email}
 													</p>
 												)}
 											</div>
@@ -304,7 +364,12 @@ function ExRegister() {
 											</div>
 
 											<br />
-											<p className="text-center text-muted">ข้อมูลการติดต่อ</p>
+											{/* <p className="text-center text-muted">ข้อมูลการติดต่อ</p> */}
+											<div className="bg-dark p-2 mb-2 rounded-top">
+												<p className="text-white fw-bold m-auto">
+													ข้อมูลการติดต่อ
+												</p>
+											</div>
 											<div className="mb-3">
 												<label className="form-label" htmlFor="contact_name">
 													ชื่อผู้ติดต่อ (ชื่อ-นามสกุล){" "}
@@ -356,11 +421,16 @@ function ExRegister() {
 											</div>
 										</div>
 
-										<div className="col-sm mx-2">
+										<div className="col-lg mx-1">
 											<br />
-											<p className="text-center text-muted">
+											{/* <p className="text-center text-muted">
 												ข้อมูลบริษัท/หน่วยงาน
-											</p>
+											</p> */}
+											<div className="bg-dark p-2 mb-2 rounded-top">
+												<p className="text-white fw-bold m-auto">
+													ข้อมูลบริษัท/หน่วยงาน
+												</p>
+											</div>
 
 											<div className="mb-3">
 												<label className="form-label" htmlFor="company_name">
@@ -374,7 +444,13 @@ function ExRegister() {
 													name="company_name"
 													value={formData.company_name}
 													onChange={handleInputChange}
+													maxLength={100}
 												/>
+												<div className="d-flex justify-content-end">
+													<small className="text-muted">
+														{formData.company_name.length}/100
+													</small>
+												</div>
 												{errors.company_name && (
 													<p className="text-danger">{errors.company_name}</p>
 												)}
@@ -396,7 +472,7 @@ function ExRegister() {
 													<ThailandAddressTypeahead.SubdistrictInput
 														id="subdistrict"
 														className="form-control"
-														placeholder="ตำบล/แขวง"
+														//placeholder="ตำบล/แขวง"
 													/>
 													{errors.subdistrict && (
 														<p className="text-danger">{errors.subdistrict}</p>
@@ -408,8 +484,9 @@ function ExRegister() {
 														อำเภอ/เขต <span className="text-danger">*</span>
 													</label>
 													<ThailandAddressTypeahead.DistrictInput
+														id="district"
 														className="form-control"
-														placeholder="อำเภอ/เขต"
+														//placeholder="อำเภอ/เขต"
 													/>
 													{errors.district && (
 														<p className="text-danger">{errors.district}</p>
@@ -421,8 +498,12 @@ function ExRegister() {
 														จังหวัด <span className="text-danger">*</span>
 													</label>
 													<ThailandAddressTypeahead.ProvinceInput
+														id="province"
 														className="form-control"
-														placeholder="จังหวัด"
+														//placeholder="จังหวัด"
+														containerProps={{
+															className: "address-input-field-container",
+														}}
 													/>
 													{errors.province && (
 														<p className="text-danger">{errors.province}</p>
@@ -434,15 +515,27 @@ function ExRegister() {
 														รหัสไปรษณีย์ <span className="text-danger">*</span>
 													</label>
 													<ThailandAddressTypeahead.PostalCodeInput
+														id="pcode"
 														className="form-control mb-3"
-														placeholder="รหัสไปรษณีย์"
+														//placeholder="รหัสไปรษณีย์"
+														containerProps={{
+															className: "address-input-field-container",
+														}}
+														maxLength={5}
 													/>
 													{errors.pcode && (
 														<p className="text-danger">{errors.pcode}</p>
 													)}
 												</div>
 
-												<ThailandAddressTypeahead.Suggestion />
+												<ThailandAddressTypeahead.Suggestion
+													containerProps={{
+														className: "suggestion-container",
+													}}
+													optionItemProps={{
+														className: "suggestion-option",
+													}}
+												/>
 											</ThailandAddressTypeahead>
 
 											{/* <div className="mb-3">
@@ -549,7 +642,7 @@ function ExRegister() {
 										ลงทะเบียน
 									</button>
 
-									<PrivacyPolicyPopup />
+									{/* <PrivacyPolicyPopup /> */}
 								</form>
 
 								<p className="text-end">

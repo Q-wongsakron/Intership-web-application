@@ -13,6 +13,16 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: true,
           field: "doc_nonlicense",
         },
+        doc_nonlicense_courtesy: {
+          type: Sequelize.STRING(255),
+          allowNull: true,
+          field: "doc_nonlicense_courtesy",
+        },
+        doc_nonlicense_letter : {
+          type: Sequelize.STRING(255),
+          allowNull: true,
+          field: "doc_nonlicense_letter",
+        },
         courtesy_license: {
           type: Sequelize.STRING(100),
           allowNull: true,

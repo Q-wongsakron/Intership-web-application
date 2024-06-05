@@ -23,14 +23,16 @@ function StdProfile() {
 	const [resumeFile, setResumeFile] = useState(null);
 	const [viewPdf, setViewPdf] = useState(null);
 
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	const loadData = async (authtoken) => {
 		try {
 			const response = await getStudentProfile(authtoken);
 			setData(response.data);
-			setViewPdf(`http://localhost:5500/uploads/${response.data.resume}`);
-		} catch (error) {
+			setViewPdf(
+				import.meta.env.VITE_FILE_API + `/uploads/${response.data.resume}`
+			);
+		} catch (err) {
 			console.log(
 				"Load data failed: ",
 				err.response ? err.response.data : err.message
@@ -45,12 +47,16 @@ function StdProfile() {
 			const formData = new FormData();
 			formData.append("stdResumeFile", resumeFile);
 
-			await axios.put("http://localhost:5500/api/uploadFileResume", formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-					authtoken: user.user.token,
-				},
-			});
+			await axios.put(
+				import.meta.env.VITE_APP_API + "/uploadFileResume",
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+						authtoken: user.user.token,
+					},
+				}
+			);
 
 			console.log("Resume file uploaded successfully");
 		} catch (error) {
@@ -80,7 +86,7 @@ function StdProfile() {
 	useEffect(() => {
 		setLoading(true);
 		loadData(user.user.token);
-	}, []);
+	}, [user.user.token]);
 
 	if (loading) {
 		return <Loading />;
@@ -102,16 +108,22 @@ function StdProfile() {
 								<div className="col-sm-6 stdName">
 									<p className="fw-bold">ชื่อ-นามสกุล</p>
 									{data ? (
-										<h6>{data.name_title_th}{data.displayname_th}</h6>
+										<h6>
+											{data.name_title_th}
+											{data.displayname_th}
+										</h6>
 									) : (
 										<p className="text-muted">-</p>
 									)}
 								</div>
-								
+
 								<div className="col-sm-6 mt-2 mt-sm-0 stdSurname">
 									<p className="fw-bold">ชื่อ-นามสกุล (ภาษาอังกฤษ)</p>
 									{data ? (
-										<h6>{data.name_title_en}{data.displayname_en}</h6>
+										<h6>
+											{data.name_title_en}
+											{data.displayname_en}
+										</h6>
 									) : (
 										<p className="text-muted">-</p>
 									)}
@@ -157,7 +169,13 @@ function StdProfile() {
 								<div className="col-sm-6 stdFaculty">
 									<p className="fw-bold">ประสบการณ์</p>
 									{data.experience ? (
-										<h6>{data.experience}</h6>
+										<h6>
+											{data.experience.split("\n").map((line, index) => (
+												<p key={index} className="mb-1">
+													{line}
+												</p>
+											))}
+										</h6>
 									) : (
 										<p className="text-muted">-</p>
 									)}
@@ -165,7 +183,13 @@ function StdProfile() {
 								<div className="col-sm-6 mt-2 mt-sm-0 stdPhone">
 									<p className="fw-bold">ทักษะ</p>
 									{data.skill ? (
-										<h6>{data.skill}</h6>
+										<h6>
+											{data.skill.split("\n").map((line, index) => (
+												<p key={index} className="mb-1">
+													{line}
+												</p>
+											))}
+										</h6>
 									) : (
 										<p className="text-muted">-</p>
 									)}

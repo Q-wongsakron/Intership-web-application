@@ -6,10 +6,15 @@ import btn from "../../components/btn.module.css";
 import AlertBox from "../../components/AlertBox";
 import Loading from "../../components/Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEye,
+	faPenToSquare,
+	faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import DataTable from "react-data-table-component";
-import customStyles from "../../components/dataTableCustomStyles";
+import { customStyles } from "../../components/dataTableCustomStyles";
+import NoTableData from "../../components/NoTableData";
 
 import {
 	employerList as getList,
@@ -22,15 +27,13 @@ function EmployerList() {
 	const [msg, setMsg] = useState("");
 	const [alertKey, setAlertKey] = useState(0);
 	const [modalBody, setModalBody] = useState("");
-	const [hideCompanyName, setHideCompanyName] = useState(false);
-	const [hideCompanyAddress, setHideCompanyAddress] = useState(false);
 
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(true);
 
 	const [sendData, setSendData] = useState({});
 
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	const showAlert = () => {
 		setAlertKey((prevKey) => prevKey + 1);
@@ -42,7 +45,7 @@ function EmployerList() {
 		await verifyEmployer(user.user.token, sendData)
 			.then((res) => {
 				setMsg(
-					`Employer ID ${sendData.employer_id}: status => ${sendData.status}`
+					`Employer ID ${sendData.employer_id}: Status => ${sendData.status}`
 				);
 			})
 			.catch((err) => {
@@ -209,6 +212,48 @@ function EmployerList() {
 		);
 	};
 
+	const [tableColOptions, setTableColOptions] = useState({
+		company_name: {
+			label: "ชื่อบริษัท/หน่วยงาน",
+			is_hide: false,
+		},
+		address: {
+			label: "ที่อยู่",
+			is_hide: false,
+		},
+		contact_name: {
+			label: "ชื่อผู้ติดต่อ",
+			is_hide: false,
+		},
+		contact_email: {
+			label: "อีเมลผู้ติดต่อ",
+			is_hide: false,
+		},
+		contact_tel: {
+			label: "เบอร์ผู้ติดต่อ",
+			is_hide: false,
+		},
+		username: {
+			label: "ชื่อผู้ใช้",
+			is_hide: true,
+		},
+		status: {
+			label: "สถานะ",
+			is_hide: false,
+		},
+		actions: {
+			label: "ACTIONS",
+			is_hide: false,
+		},
+	});
+	const handleHideColumn = (e) => {
+		const { name, checked } = e.target;
+
+		setTableColOptions({
+			...tableColOptions,
+			[name]: { ...tableColOptions[name], is_hide: checked },
+		});
+	};
 	const employerData = data.map(
 		({
 			employer_id,
@@ -232,16 +277,15 @@ function EmployerList() {
 			// actions: { employer_id: employer_id },
 		})
 	);
-
 	const employerColumns = useMemo(
 		() => [
-			{
-				name: "id",
-				selector: (row) => row.employer_id,
-				sortable: true,
-				reorder: true,
-				omit: true,
-			},
+			// {
+			// 	name: "id",
+			// 	selector: (row) => row.employer_id,
+			// 	sortable: true,
+			// 	reorder: true,
+			// 	omit: true,
+			// },
 			{
 				// name: <p className="m-auto">ชื่อบริษัท/หน่วยงาน</p>,
 				name: "ชื่อบริษัท/หน่วยงาน",
@@ -256,7 +300,7 @@ function EmployerList() {
 						{/* <p className="m-auto text-wrap">{row.company_name}</p> */}
 					</div>
 				),
-				omit: hideCompanyName,
+				omit: tableColOptions.company_name.is_hide,
 			},
 			{
 				name: "ที่อยู่",
@@ -268,7 +312,7 @@ function EmployerList() {
 						<p className="my-1">{row.address}</p>
 					</div>
 				),
-				omit: hideCompanyAddress,
+				omit: tableColOptions.address.is_hide,
 			},
 			{
 				name: "ชื่อผู้ติดต่อ",
@@ -280,6 +324,7 @@ function EmployerList() {
 						<p className="m-auto">{row.contact_name}</p>
 					</div>
 				),
+				omit: tableColOptions.contact_name.is_hide,
 			},
 			{
 				name: "อีเมลติดต่อ",
@@ -291,6 +336,7 @@ function EmployerList() {
 						<p className="m-auto">{row.contact_email}</p>
 					</div>
 				),
+				omit: tableColOptions.contact_email.is_hide,
 			},
 			{
 				name: "เบอร์ติดต่อ",
@@ -302,6 +348,7 @@ function EmployerList() {
 						<p className="m-auto">{row.contact_tel}</p>
 					</div>
 				),
+				omit: tableColOptions.contact_tel.is_hide,
 			},
 			{
 				name: "ชื่อผู้ใช้",
@@ -313,6 +360,7 @@ function EmployerList() {
 						<p className="m-auto">{row.username}</p>
 					</div>
 				),
+				omit: tableColOptions.username.is_hide,
 			},
 			{
 				name: "สถานะ",
@@ -342,6 +390,7 @@ function EmployerList() {
 						</option>
 					</select>
 				),
+				omit: tableColOptions.status.is_hide,
 			},
 			{
 				// button: "true",
@@ -353,19 +402,20 @@ function EmployerList() {
 						>
 							<FontAwesomeIcon icon={faEye} />
 						</button>
-						<button
+						{/* <button
 							className={`btn btn-sm btn-outline-success ms-2`}
 							onClick={null}
 						>
 							<FontAwesomeIcon icon={faPenToSquare} />
-						</button>
+						</button> */}
 					</>
 				),
 				ignoreRowClick: true,
 				// allowOverflow: true,
+				omit: tableColOptions.actions.is_hide,
 			},
 		],
-		[hideCompanyName, hideCompanyAddress]
+		[tableColOptions]
 	);
 
 	// fow table selectableRows
@@ -396,30 +446,40 @@ function EmployerList() {
 				"username",
 				"status",
 			].some((field) =>
-				item[field].toLowerCase().includes(searchQuery.toLowerCase())
+				item[field]?.toLowerCase().includes(searchQuery.toLowerCase())
 			);
 		} else {
 			// ของเดิมที่เป็นแบบเลือกว่าจะค้นหา field ไหน
+			// return item[selectedSearchField]
+			// 	.trim()
+			// 	.toLowerCase()
+			// 	.includes(searchQuery.trim().toLowerCase());
 			return item[selectedSearchField]
-				.trim()
-				.toLowerCase()
+				?.toLowerCase()
 				.includes(searchQuery.trim().toLowerCase());
 		}
 	});
 
 	const handleSearchFieldChange = (e) => {
 		const value = e.target.value;
-		if (
-			(value !== "status" && searchQuery === "verified") ||
-			searchQuery === "notverify"
-		) {
-			setSearchQuery("");
-		}
+		// if (
+		// 	(value !== "status" && searchQuery === "verified") ||
+		// 	searchQuery === "notverify"
+		// ) {
+		// 	setSearchQuery("");
+		// }
 		setSelectedSearchField(value);
+		setSearchQuery("");
 	};
 	const handleSearchQuery = (e) => {
-		setSearchQuery(e.target.value);
-		// handleClearRows();
+		const { name, value } = e.target;
+		// console.log("name & value: ", name, value);
+
+		if (name === "searchStatusSelect" && value === "เลือกสถานะ...") {
+			setSearchQuery("");
+		} else {
+			setSearchQuery(value);
+		}
 	};
 
 	// อันนี้ใช้ค้นหาทั้งหมดตาม field ที่ระบุ
@@ -455,7 +515,7 @@ function EmployerList() {
 	useEffect(() => {
 		setLoading(true);
 		loadData(user.user.token);
-	}, []);
+	}, [user.user.token]);
 
 	if (loading) {
 		return <Loading />;
@@ -464,10 +524,10 @@ function EmployerList() {
 	return (
 		<div className="container p-3 p-md-4 container-card">
 			<div className="d-flex justify-content-between mb-4">
-				<h3 className="fw-bold">บริษัท/หน่วยงาน</h3>
+				<h3 className="fw-bold">อนุมัติผู้ใช้ (บริษัท/หน่วยงาน)</h3>
 			</div>
 
-			<div className="searchBox mb-3">
+			<div className="searchBox mb-2">
 				<label className="form-label fw-bold" htmlFor="selectFilter">
 					ค้นหาโดย :
 				</label>
@@ -476,38 +536,36 @@ function EmployerList() {
 						id="selectFilter"
 						className="form-select"
 						value={selectedSearchField}
-						// onChange={(e) => setSelectedSearchField(e.target.value)}
 						onChange={(e) => handleSearchFieldChange(e)}
 					>
 						<option value="all" label="ทั้งหมด">
 							ทั้งหมด
 						</option>
-						<option value="company_name" label="ชื่อบริษัท/หน่วยงาน">
-							ชื่อบริษัท/หน่วยงาน
-						</option>
-						<option value="address" label="ที่อยู่">
-							ที่อยู่
-						</option>
-						<option value="status" label="สถานะ">
-							สถานะ
-						</option>
+						{Object.entries(tableColOptions)
+							.filter(([key]) => key !== "actions")
+							.map(([key, val] = entry, index) => (
+								<option key={index} value={key} label={val.label}>
+									{val.label}
+								</option>
+							))}
 					</select>
 
 					{selectedSearchField === "status" ? (
 						<select
 							className="form-select w-75"
-							id="inputGroupSelect01"
+							id="searchStatusSelect"
+							name="searchStatusSelect"
 							onChange={(e) => handleSearchQuery(e)}
 						>
-							<option defaultValue="choose">เลือกสถานะ</option>
+							<option defaultValue="choose">เลือกสถานะ...</option>
 							<option value="verified">verified</option>
 							<option value="notverify">notverify</option>
 						</select>
 					) : (
 						<input
-							type="text"
+							type="search"
 							className="form-control w-75"
-							placeholder="ค้นหา"
+							placeholder="ค้นหา..."
 							value={searchQuery}
 							onChange={(e) => handleSearchQuery(e)}
 						/>
@@ -516,15 +574,77 @@ function EmployerList() {
 				</div>
 			</div>
 
-			{filteredData.length && selectedRows.length ? (
-				<div className="row my-1 my-sm-auto">
-					<div className="col">
-						<div
-							className="btn-toolbar"
-							role="toolbar"
-							aria-label="Toolbar with button groups"
-						>
-							<div className="btn-group me-2" role="group">
+			<div className="tableToolbar row my-1 my-sm-auto">
+				<div className="col">
+					<div
+						className="btn-toolbar"
+						role="toolbar"
+						aria-label="Toolbar with button groups"
+					>
+						<div className="dropdown">
+							<button
+								className="btn btn-sm btn-outline-secondary dropdown-toggle"
+								type="button"
+								data-bs-toggle="dropdown"
+								data-bs-auto-close="outside"
+								aria-expanded="false"
+							>
+								ตัวเลือกเพิ่มเติม
+							</button>
+
+							{selectedRows.length ? (
+								<div className="btn-group mx-2" role="group">
+									<div>
+										<button
+											className={`btn btn-sm btn-outline-dark me-2`}
+											onClick={handleClearRows}
+										>
+											เลือกทั้งหมด <span>{selectedRows.length}</span>{" "}
+											<FontAwesomeIcon
+												icon={faXmark}
+												className="text-secondary"
+											/>
+										</button>
+									</div>
+								</div>
+							) : (
+								<></>
+							)}
+
+							<div className="dropdown-menu">
+								<div className="d-flex flex-column flex-sm-row">
+									<div className="bg-light px-2">
+										<label htmlFor="hideColumn">ซ่อนคอลัมน์</label>
+										<ul id="hideColumn" className="list-unstyled text-nowrap">
+											{Object.entries(tableColOptions).map(
+												([key, val] = entry, index) => (
+													<li key={index}>
+														<div className="form-check form-check-inline">
+															<input
+																className="form-check-input"
+																type="checkbox"
+																name={key}
+																id={`${index}_${key}`}
+																checked={val.is_hide}
+																onChange={(e) => handleHideColumn(e)}
+															/>
+															<label
+																className="form-check-label"
+																htmlFor={`${index}_${key}`}
+															>
+																{val.label}
+															</label>
+														</div>
+													</li>
+												)
+											)}
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+						{/* {selectedRows.length ? (
+							<div className="btn-group mx-2" role="group">
 								<div className="me-2">
 									<p>
 										เลือกทั้งหมด <span>{selectedRows.length}</span> :{" "}
@@ -545,40 +665,43 @@ function EmployerList() {
 									</button>
 								</div>
 							</div>
-						</div>
+						) : (
+							<div style={{ height: "2.5rem" }}></div>
+						)} */}
+
+						<div style={{ height: "2.5rem" }}></div>
 					</div>
 				</div>
-			) : (
-				<div style={{ height: "2.5rem" }}></div>
-			)}
+			</div>
 
 			<DataTable
 				// title="บริษัท/หน่วยงาน"
 				columns={employerColumns}
 				data={filteredData}
 				customStyles={customStyles}
-				defaultSortFieldId={1}
+				defaultSortFieldId={7} // status column
 				defaultSortAsc={false} // เรียงจากมากไปน้อย
 				fixedHeader
 				responsive
 				pagination
 				highlightOnHover
-				selectableRows
+				selectableRows={false}
 				selectableRowsHighlight
 				onSelectedRowsChange={handleRowSelected}
 				clearSelectedRows={toggledClearRows}
+				noDataComponent={<NoTableData />}
 			/>
 
-			{filteredData.length !== 0 && (
+			{/* {filteredData.length !== 0 && (
 				<div className="additionalTab mb-2 d-flex flex-column flex-md-row justify-content-start">
 					<div>
 						<div className="form-check form-check-inline">
 							<input
 								className="form-check-input"
 								type="checkbox"
-								value=""
+								name="company_name"
 								id="hideCompanyName"
-								onChange={() => setHideCompanyName(!hideCompanyName)}
+								onChange={(e) => handleHideColumn(e)}
 							/>
 							<label className="form-check-label" htmlFor="hideCompanyName">
 								ซ่อนชื่อบริษัท/หน่วยงาน
@@ -588,9 +711,9 @@ function EmployerList() {
 							<input
 								className="form-check-input"
 								type="checkbox"
-								value=""
+								name="address"
 								id="hideAddress"
-								onChange={() => setHideCompanyAddress(!hideCompanyAddress)}
+								onChange={(e) => handleHideColumn(e)}
 							/>
 							<label className="form-check-label" htmlFor="hideAddress">
 								ซ่อนที่อยู่
@@ -598,7 +721,7 @@ function EmployerList() {
 						</div>
 					</div>
 				</div>
-			)}
+			)} */}
 
 			<ConfirmModal />
 			<DetailModal />
@@ -606,14 +729,6 @@ function EmployerList() {
 			{msg ? <AlertBox key={alertKey} message={msg} duration={3000} /> : <></>}
 		</div>
 	);
-
-	function ItemNotFound() {
-		return (
-			<div className="d-flex flex-column justify-content-center align-items-center p-5 min-vh-50 text-muted bg-light container-card">
-				<h5>ค้นหาไม่พบ</h5>
-			</div>
-		);
-	}
 }
 
 export default EmployerList;

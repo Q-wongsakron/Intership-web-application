@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const listAllUser = async (authtoken) =>
-	await axios.get("http://localhost:5500/api" + "/listAllUser", {
+	await axios.get(import.meta.env.VITE_APP_API+"" + "/listAllUser", {
 		headers: {
 			authtoken,
 		},
@@ -9,7 +9,7 @@ export const listAllUser = async (authtoken) =>
 
 export const chaneRole = async (authtoken, data) =>
 	await axios.post(
-		"http://localhost:5500/api" + "/changeRole",
+		import.meta.env.VITE_APP_API+"" + "/changeRole",
 		{ data },
 		{
 			headers: {
@@ -19,23 +19,23 @@ export const chaneRole = async (authtoken, data) =>
 	);
 
 // export const getProfile = async (authtoken) =>
-// 	await axios.get("http://localhost:5500/api" + "/profile", {
+// 	await axios.get(import.meta.env.VITE_APP_API+"" + "/profile", {
 // 		headers: {
 // 			authtoken,
 // 		},
 // 	});
 
 export const getPost = async (postId) =>
-	await axios.get("http://localhost:5500/api" + `/post/${postId}`, {});
+	await axios.get(import.meta.env.VITE_APP_API+"" + `/post/${postId}`, {});
 
 export const getEmployerProfileId = async (employerId) =>
 	await axios.get(
-		"http://localhost:5500/api" + `/profileEmployerId/${employerId}`,
+		import.meta.env.VITE_APP_API+"" + `/profileEmployerId/${employerId}`,
 		{}
 	);
 
 export const getStudentProfile = async (authtoken) =>
-	await axios.get("http://localhost:5500/api" + `/profileStudent`, {
+	await axios.get(import.meta.env.VITE_APP_API+"" + `/profileStudent`, {
 		headers: {
 			authtoken,
 		},
@@ -43,7 +43,7 @@ export const getStudentProfile = async (authtoken) =>
 
 export const putStudentProfile = async (authtoken, formData) =>
 	await axios.put(
-		"http://localhost:5500/api" + `/updateProfileStudent`,
+		import.meta.env.VITE_APP_API+"" + `/updateProfileStudent`,
 		{ formData },
 		{
 			headers: {
@@ -53,7 +53,7 @@ export const putStudentProfile = async (authtoken, formData) =>
 	);
 
 export const getEmployerProfile = async (authtoken) =>
-	await axios.get("http://localhost:5500/api" + `/profileEmployer`, {
+	await axios.get(import.meta.env.VITE_APP_API+"" + `/profileEmployer`, {
 		headers: {
 			authtoken,
 		},
@@ -61,7 +61,7 @@ export const getEmployerProfile = async (authtoken) =>
 
 export const putEmployerProfile = async (authtoken, formData) =>
 	await axios.put(
-		"http://localhost:5500/api" + `/updateProfileEmployer`,
+		import.meta.env.VITE_APP_API+"" + `/updateProfileEmployer`,
 		{ formData },
 		{
 			headers: {

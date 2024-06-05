@@ -73,7 +73,8 @@ function AdminLogin() {
 		}
 	};
 
-	const { user } = useSelector((state) => ({ ...state }));
+	// const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	return !(user && user.user.token) ? (
 		<div className="bg-light h-100">

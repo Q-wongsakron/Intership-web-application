@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 
 import btn from "./btn.module.css";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronUp } from "@fortawesome/free-solid-svg-icons";
+
 export default function ScrollToTop() {
 	const [visible, setVisible] = useState(false);
 
@@ -35,7 +38,7 @@ export default function ScrollToTop() {
 			style={{ display: visible ? "inline-block" : "none" }}
 			onClick={scrollToTop}
 		>
-			Top
+			<FontAwesomeIcon icon={faChevronUp} />
 		</button>
 	);
 }

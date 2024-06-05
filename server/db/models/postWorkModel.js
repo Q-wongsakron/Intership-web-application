@@ -49,11 +49,6 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "contact_tel",
       },
-      position_num: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
-        field: "position_num",
-      },
       work_hours: {
         type: Sequelize.STRING(255),
         allowNull: false,
@@ -75,12 +70,12 @@ module.exports = (sequelize, Sequelize) => {
         field: "qualifications",
       },
       desc: {
-        type: Sequelize.STRING(1000),
+        type: Sequelize.TEXT(),
         allowNull: false,
         field: "desc",
       },
       other: {
-        type: Sequelize.STRING(1000),
+        type: Sequelize.TEXT(),
         allowNull: true,
         field: "other",
       },
@@ -88,6 +83,16 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.JSON(),
         allowNull: false,
         field: "cat",
+      },
+      cat_values: {
+        type: Sequelize.JSON(),
+        allowNull: false,
+        field: "cat_values",
+      },
+      count_values: {
+        type: Sequelize.JSON(),
+        allowNull: false,
+        field: "count_values",
       },
       name_to: {
         type: Sequelize.STRING(100),
@@ -106,6 +111,11 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "dateEndPost",
       },
+      status: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+        field: "status",
+      }
     },
     {
       tableName: "posts_job",

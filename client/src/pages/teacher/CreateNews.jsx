@@ -11,10 +11,13 @@ import btn from "../../components/btn.module.css";
 import NewsPreview from "./NewsPreview";
 import axios from "axios";
 import { Modal, Button } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 
 function CreateNews() {
 	const navigate = useNavigate();
-	const [showModal, setShowMoal] = useState(false);
+	const [showNewsPreviewModal, setShowNewsPreviewModal] = useState(false);
+	const [showModal, setShowModal] = useState(false);
 	const [isEditorValid, setIsEditorValid] = useState(true);
 
 	const [formData, setFormData] = useState({
@@ -67,7 +70,7 @@ function CreateNews() {
 		});
 	};
 
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	const handlePublish = async (e) => {
 		e.preventDefault();
@@ -77,11 +80,11 @@ function CreateNews() {
 			setIsEditorValid(false);
 		} else {
 			setIsEditorValid(true);
-			setShowMoal(true);
+			setShowModal(true);
 		}
 	};
 	const handleConfirmPublish = async () => {
-		setShowMoal(false);
+		setShowModal(false);
 		try {
 			const dataNews = {
 				topic: formData.topic,
@@ -89,7 +92,7 @@ function CreateNews() {
 			};
 
 			const response = await axios.post(
-				"http://localhost:5500/api/createNews",
+				import.meta.env.VITE_APP_API + "/createNews",
 				dataNews,
 				{
 					headers: {
@@ -101,12 +104,16 @@ function CreateNews() {
 			formDataImg.append("coverImg", formData.coverImage);
 			console.log(formDataImg);
 
-			await axios.put("http://localhost:5500/api/uploadCover", formDataImg, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-					authtoken: user.user.token,
-				},
-			});
+			await axios.put(
+				import.meta.env.VITE_APP_API + "/uploadCover",
+				formDataImg,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+						authtoken: user.user.token,
+					},
+				}
+			);
 
 			const formDataImgs = new FormData();
 
@@ -114,14 +121,20 @@ function CreateNews() {
 			formData.otherImage.forEach((file, index) => {
 				formDataImgs.append("images", file);
 			});
-
-			await axios.put("http://localhost:5500/api/uploadImages", formDataImgs, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-					authtoken: user.user.token,
-				},
-			});
+			console.log(formDataImgs);
+			await axios.put(
+				import.meta.env.VITE_APP_API + "/uploadImages",
+				formDataImgs,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+						authtoken: user.user.token,
+					},
+				}
+			);
 			console.log(response);
+
+			navigate("/news"); //
 		} catch (error) {
 			console.error(error);
 		}
@@ -129,22 +142,21 @@ function CreateNews() {
 
 	const PublicModal = () => {
 		return (
-			<Modal show={showModal} onHide={() => setShowMoal(false)} centered>
+			<Modal show={showModal} onHide={() => setShowModal(false)} centered>
 				<Modal.Header closeButton>
-					<Modal.Title>เผยแพร่</Modal.Title>
+					<Modal.Title className="fw-bold">เผยแพร่</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
 					คุณแน่ใจหรือไม่ว่าต้องการเผยแพร่ข่าวประชาสัมพันธ์นี้ ?
 				</Modal.Body>
 				<Modal.Footer>
-					<Button variant="secondary" onClick={() => setShowMoal(false)}>
+					<Button variant="secondary" onClick={() => setShowModal(false)}>
 						ปิด
 					</Button>
 					<Button
 						className={`${btn.btn_blue}`}
 						onClick={() => {
 							handleConfirmPublish();
-							navigate("/news");
 						}}
 					>
 						เผยแพร่
@@ -155,7 +167,7 @@ function CreateNews() {
 	};
 
 	useEffect(() => {}, []);
-
+	//console.log(formData)
 	return (
 		<div className="row">
 			<div className="col-12 col-xl-8">
@@ -299,15 +311,21 @@ function CreateNews() {
 
 						<div className="buttons">
 							<div className="row">
-								<div className="col-12 col-xl-6 mb-2">
+								{/* <div className="col-12 col-xl-6 mb-2">
 									<button
 										className={`btn btn-sm ${btn.btn_grey_outline} w-100`}
 									>
 										Save as a draft
 									</button>
-								</div>
-								<div className="col-12 col-xl-6">
-									<NewsPreviewModal />
+								</div> */}
+								<div className="col-12">
+									<button
+										type="button"
+										className={`btn btn-sm ${btn.btn_blue_outline} w-100`}
+										onClick={() => setShowNewsPreviewModal(true)}
+									>
+										<FontAwesomeIcon icon={faEye} /> ดูตัวอย่าง
+									</button>
 								</div>
 							</div>
 
@@ -325,6 +343,31 @@ function CreateNews() {
 						</div>
 					</div>
 				</div>
+
+				<Modal
+					show={showNewsPreviewModal}
+					fullscreen={true}
+					onHide={() => setShowNewsPreviewModal(false)}
+					centered
+					size="xl"
+				>
+					<Modal.Header closeButton>
+						<Modal.Title className="fw-bold">ตัวอย่าง</Modal.Title>
+					</Modal.Header>
+					<Modal.Body className="bg-light">
+						<NewsPreview formData={formData} />
+					</Modal.Body>
+					<Modal.Footer>
+						<Button
+							variant="secondary"
+							onClick={() => {
+								setShowNewsPreviewModal(false);
+							}}
+						>
+							ปิด
+						</Button>
+					</Modal.Footer>
+				</Modal>
 
 				<PublishCard />
 				<PublicModal />
@@ -350,13 +393,19 @@ function CreateNews() {
 
 					<div className="buttons">
 						<div className="row">
-							<div className="col-12 col-xl-6 mb-2">
+							{/* <div className="col-12 col-xl-6 mb-2">
 								<button className={`btn btn-sm ${btn.btn_grey_outline} w-100`}>
 									Save as a draft
 								</button>
-							</div>
-							<div className="col-12 col-xl-6">
-								<NewsPreviewModal />
+							</div> */}
+							<div className="col-12">
+								<button
+									type="button"
+									className={`btn btn-sm ${btn.btn_blue_outline} w-100`}
+									onClick={() => setShowNewsPreviewModal(true)}
+								>
+									<FontAwesomeIcon icon={faEye} /> ดูตัวอย่าง
+								</button>
 							</div>
 						</div>
 
@@ -374,64 +423,6 @@ function CreateNews() {
 					</div>
 				</div>
 			</div>
-		);
-	}
-
-	function NewsPreviewModal() {
-		return (
-			<>
-				<button
-					type="button"
-					className={`btn btn-sm ${btn.btn_blue_outline} w-100`}
-					data-bs-toggle="modal"
-					data-bs-target="#newsPreviewModal"
-				>
-					Preview
-				</button>
-
-				<div
-					className="modal fade"
-					id="newsPreviewModal"
-					tabIndex={-1}
-					aria-labelledby="newsPreviewModalLabel"
-					aria-hidden="true"
-				>
-					<div className="modal-dialog modal-xl modal-fullscreen-lg-down">
-						<div className="modal-detail">
-							<div className="modal-header">
-								<h1 className="modal-topic fs-5" id="newsPreviewModalLabel">
-									Preview
-								</h1>
-								<button
-									type="button"
-									className="btn-close"
-									data-bs-dismiss="modal"
-									aria-label="Close"
-								></button>
-							</div>
-							<div className="modal-body bg-light">
-								<NewsPreview formData={formData} />
-							</div>
-							<div className="modal-footer">
-								<button
-									type="button"
-									className={`btn btn-sm ${btn.btn_grey}`}
-									data-bs-dismiss="modal"
-								>
-									ปิดหน้าต่าง
-								</button>
-								{/* <button
-									type="button"
-									className={`btn btn-sm ${btn.btn_blue}`}
-									onClick={handlePublish}
-								>
-									Publish Now
-								</button> */}
-							</div>
-						</div>
-					</div>
-				</div>
-			</>
 		);
 	}
 }

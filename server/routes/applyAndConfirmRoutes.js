@@ -3,7 +3,8 @@ const express = require("express");
 const {
   createApply,
   confirmApply,
-  refuseApply,
+  refuseApplyStd,
+  refuseApplyEmp,
   refuseConfirm,
   getApply,
   getConfirm,
@@ -18,7 +19,8 @@ router.get("/allConfirm", auth, getConfirm);
 
 router.post("/createApply", auth, createApply);
 router.post("/createConfirm", auth, confirmApply);
-router.delete("/refuseApply/:id", auth, refuseApply);
+router.put("/refuseApplyStd/:id", auth, refuseApplyStd);
+router.put("/refuseApplyEmp/:id", auth, refuseApplyEmp);
 router.delete("/refuseConfirm/:id", auth, refuseConfirm);
 
 module.exports = router;

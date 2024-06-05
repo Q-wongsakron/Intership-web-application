@@ -79,6 +79,18 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         field: "resume",
       },
+      std_eval:{
+        type: Sequelize.INTEGER(10),
+        allowNull: true,
+        field: "std_eval",
+        defaultValue: 0,
+      },
+      emp_eval:{
+        type: Sequelize.STRING(50),
+        allowNull: true,
+        field: "emp_eval",
+        defaultValue: "ยังไม่ประเมิน",
+      }
     },
     {
       tableName: "student",

@@ -35,7 +35,7 @@ export default function NewsComponentB({
 						<div className="col-12">
 							<div className="news-card-img-b">
 								<img
-									src={`http://localhost:5500/uploads/2566/${cover_img}`}
+									src={import.meta.env.VITE_FILE_API+`/uploads/${cover_img}`}
 									alt="News Cover Image"
 									className="img-fluid rounded"
 								/>

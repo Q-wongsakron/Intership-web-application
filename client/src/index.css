@@ -7,15 +7,22 @@
 	--text-grey: #606060;
 
 	--light-blue: #06b4e4;
-	--bg-light-blue: #cef4ff5d;
+	/* --bg-light-blue: #cef4ff5d; */
+	--bg-light-blue: #edfbff;
 	--dark-blue: #079cc5;
 
 	--faculty-red: #8b191c;
 	--bg-light-red: #fdc1c362;
 	--dark-faculty-red: #6e1216;
 
+	--my-purple: #686bff;
+
 	--footer-bg: #191919;
 	--border-color: #eeeeee;
+
+	--pdf-file-color: #f40f02;
+	--docx-file-color: #2b579a;
+	--pptx-file-color: #d24726;
 }
 
 @font-face {
@@ -123,6 +130,34 @@ button:focus-visible {
 }
 .bg-light-red {
 	background: var(--bg-light-red);
+}
+.bg-gradient-red-blue {
+	background: rgb(251, 76, 76);
+	background: linear-gradient(
+		90deg,
+		rgba(251, 76, 76, 1) 0%,
+		rgba(6, 180, 228, 1) 52%,
+		rgba(6, 180, 228, 1) 100%
+	);
+}
+.bg-my-purple {
+	background: var(--my-purple);
+}
+.text-my-purple {
+	color: var(--my-purple);
+}
+.border-my-purple {
+	border-bottom: solid var(--my-purple);
+}
+
+.pdf-file-color {
+	color: var(--pdf-file-color);
+}
+.docx-file-color {
+	color: var(--docx-file-color);
+}
+.pptx-file-color {
+	color: var(--pptx-file-color);
 }
 
 /* .card {

@@ -15,13 +15,18 @@ module.exports = (sequelize, Sequelize) => {
         },
         number_letter: {
           type: Sequelize.STRING(100),
-          allowNull: false,
+          allowNull: true,
           field: "number_letter",
         },
-        date: {
+        date_courtesy: {
           type: Sequelize.STRING(100),
           allowNull: false,
-          field: "date",
+          field: "date_courtesy",
+        },
+        date_letter: {
+          type: Sequelize.STRING(100),
+          allowNull: true,
+          field: "date_letter",
         },
         name_to: {
           type: Sequelize.STRING(100),

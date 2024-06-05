@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Employer List
 export const employerList = async (authtoken) =>
-  await axios.get("http://localhost:5500/api" + "/listEmployer", {
+  await axios.get(import.meta.env.VITE_APP_API+"" + "/listEmployer", {
     headers: {
       authtoken,
     },
@@ -10,7 +10,7 @@ export const employerList = async (authtoken) =>
 
 export const verifyEmployer = async (authtoken, data) =>
   await axios.post(
-    "http://localhost:5500/api" + "/verifyEmployer",
+    import.meta.env.VITE_APP_API+"" + "/verifyEmployer",
     { data },
     {
       headers: {
@@ -20,7 +20,7 @@ export const verifyEmployer = async (authtoken, data) =>
   );
 
 export const uploadCsv = (authtoken, formData) =>
-  axios.post("http://localhost:5500/api/uploadcsv", formData, {
+  axios.post(import.meta.env.VITE_APP_API+"/uploadcsv", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
       authtoken,

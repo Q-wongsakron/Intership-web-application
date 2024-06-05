@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import btn from "../../components/btn.module.css";
 import Loading from "../../components/Loading";
-import Form from 'react-bootstrap/Form';
+import Form from "react-bootstrap/Form";
+import { Modal, Button } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
 import {
@@ -14,28 +15,30 @@ import {
 function StdEditProfile() {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
 
 	const navigate = useNavigate();
 
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
+
 	const [characters_th, setCharacters_th] = useState([
 		{
-			label: "Select ...",
-			value: "Select ...",
+			label: "เลือก...",
+			value: "Select...",
 		},
 		{
 			label: "นาย",
-            value: "นาย",
+			value: "นาย",
 		},
 		{
 			label: "นาง",
-            value: "นาง",
+			value: "นาง",
 		},
 		{
 			label: "นางสาว",
-            value: "นางสาว",
-		}
-	])
+			value: "นางสาว",
+		},
+	]);
 
 	const [characters_en, setCharacters_en] = useState([
 		{
@@ -44,21 +47,18 @@ function StdEditProfile() {
 		},
 		{
 			label: "Mr.",
-            value: "Mr.",
+			value: "Mr.",
 		},
 		{
 			label: "Mrs.",
-            value: "Mrs.",
+			value: "Mrs.",
 		},
 		{
 			label: "Miss",
-            value: "Miss",
-		}
-	])
+			value: "Miss",
+		},
+	]);
 
-	
-
-	
 	const [formData, setFormData] = useState({
 		name_title_th: "",
 		displayname_th: "",
@@ -91,7 +91,7 @@ function StdEditProfile() {
 			...formData,
 			[name]: value,
 		});
-	
+
 		setErrors({
 			...errors,
 			[name]: "",
@@ -125,9 +125,16 @@ function StdEditProfile() {
 		}
 	};
 
+	const handleUpdateBtnClick = (e) => {
+		e.preventDefault();
+
+		setShowUpdateConfirmation(true);
+	};
+
 	const handleUpdateProfile = async (e) => {
 		e.preventDefault();
 
+		setShowUpdateConfirmation(false);
 		setLoading(true);
 		try {
 			await putStudentProfile(user.user.token, formData);
@@ -163,8 +170,7 @@ function StdEditProfile() {
 		return <Loading />;
 	}
 
-
-	console.log("select value", formData)
+	// console.log("select value", formData);
 	return (
 		<>
 			<div className="container p-3 p-md-4 container-card stdProfileCard">
@@ -175,65 +181,71 @@ function StdEditProfile() {
 				<form
 					id="edit-student-profile-form"
 					className="form-outline mb-4"
-					onSubmit={handleUpdateProfile}
+					onSubmit={handleUpdateBtnClick}
 				>
 					<div className="row">
 						<div className="col-12">
 							<div className="stdProfileDetail px-2 pt-3">
 								<div className="row">
-									<div className="col-sm-6">
+									<div className="col-md-6">
 										<p className="fw-bold">
 											ชื่อ-นามสกุล <span className="text-danger">*</span>
 										</p>
 										<div className="input-group mb-2">
+											<select
+												value={formData.name_title_th}
+												className="form-select"
+												onChange={handleInputChange}
+												name="name_title_th"
+											>
+												{characters_th.map((character, i) => (
+													<option key={character.value} value={character.value}>
+														{character.label}
+													</option>
+												))}
+											</select>
 
-										<select value ={formData.name_title_th} className="form-select" onChange={handleInputChange} name="name_title_th">
-											{characters_th.map((character, i) =>(
-												<option key={character.value} value={character.value}>
-													    {character.label}
-												</option>
-											))}
-
-										</select>
-										
 											<input
 												type="text"
 												id="displayname_th"
-												className="form-control"
+												className="form-control w-75"
 												name="displayname_th"
 												value={formData.displayname_th}
 												onChange={handleInputChange}
 												maxLength={100}
 												required
 											/>
+										</div>
 									</div>
-									</div>
-									<div className="col-sm-6 mt-2 mt-sm-0">
+									<div className="col-md-6 mt-2 mt-sm-0">
 										<p className="fw-bold">
 											ชื่อ-นามสกุล (ภาษาอังกฤษ){" "}
 											<span className="text-danger">*</span>
 										</p>
 										<div className="input-group mb-2">
-
-											<select value ={formData.name_title_en} className="form-select" onChange={handleInputChange} name="name_title_en">
-												{characters_en.map((character, i) =>(
+											<select
+												value={formData.name_title_en}
+												className="form-select"
+												onChange={handleInputChange}
+												name="name_title_en"
+											>
+												{characters_en.map((character, i) => (
 													<option key={character.value} value={character.value}>
-															{character.label}
+														{character.label}
 													</option>
 												))}
-
 											</select>
 											<input
 												type="text"
 												id="displayname_en"
-												className="form-control"
+												className="form-control w-75"
 												name="displayname_en"
 												value={formData.displayname_en}
 												onChange={handleInputChange}
 												maxLength={100}
 												required
 											/>
-											</div>
+										</div>
 									</div>
 								</div>
 								<div className="row mt-3">
@@ -279,13 +291,23 @@ function StdEditProfile() {
 								<div className="row mt-3">
 									<div className="col-sm-6">
 										<p className="fw-bold">ประสบการณ์</p>
-										<input
+										{/* <input
 											type="text"
 											id="experience"
 											className="form-control mb-2"
 											name="experience"
 											value={formData.experience}
 											onChange={handleInputChange}
+											maxLength={255}
+										/> */}
+										<textarea
+											type="text"
+											id="experience"
+											className="form-control mb-2"
+											name="experience"
+											value={formData.experience}
+											onChange={handleInputChange}
+											rows={2}
 											maxLength={255}
 										/>
 										<div className="d-flex justify-content-end">
@@ -296,13 +318,23 @@ function StdEditProfile() {
 									</div>
 									<div className="col-sm-6 mt-2 mt-sm-0">
 										<p className="fw-bold">ทักษะ</p>
-										<input
+										{/* <input
 											type="text"
 											id="skill"
 											className="form-control mb-2"
 											name="skill"
 											value={formData.skill}
 											onChange={handleInputChange}
+											maxLength={255}
+										/> */}
+										<textarea
+											type="text"
+											id="skill"
+											className="form-control mb-2"
+											name="skill"
+											value={formData.skill}
+											onChange={handleInputChange}
+											rows={2}
 											maxLength={255}
 										/>
 										<div className="d-flex justify-content-end">
@@ -337,7 +369,7 @@ function StdEditProfile() {
 											name="tel"
 											value={formData.tel}
 											onChange={handleInputChange}
-											maxLength={20}
+											pattern="[0-9]{10}"
 										/>
 									</div>
 								</div>
@@ -355,6 +387,28 @@ function StdEditProfile() {
 						</div>
 					</div>
 				</form>
+
+				<Modal
+					show={showUpdateConfirmation}
+					onHide={() => setShowUpdateConfirmation(false)}
+					centered
+				>
+					<Modal.Header closeButton>
+						<Modal.Title className="fw-bold">อัปเดตข้อมูล</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>ยืนยันการอัปเดตข้อมูล ?</Modal.Body>
+					<Modal.Footer>
+						<Button
+							variant="secondary"
+							onClick={() => setShowUpdateConfirmation(false)}
+						>
+							ปิด
+						</Button>
+						<Button className={`${btn.btn_blue}`} onClick={handleUpdateProfile}>
+							ยืนยัน
+						</Button>
+					</Modal.Footer>
+				</Modal>
 			</div>
 		</>
 	);

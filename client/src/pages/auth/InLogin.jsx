@@ -39,13 +39,13 @@ function InLogin() {
 
 		login(formData)
 			.then((res) => {
-				console.log(res);
-				console.log(res.data);
+				// console.log(res);
+				// console.log(res.data);
 
 				dispatch(
 					loginRedux({
 						token: res.data.token,
-						username: res.data.payload.user.username, // will delete
+						username: res.data.payload.user.username, //
 						role: res.data.payload.user.role, //
 						status: res.data.payload.user.status, //
 					})
@@ -56,11 +56,19 @@ function InLogin() {
 					navigate("/student/self-enroll");
 				} else {
 					if (res.data.payload.user.role === "student") {
-						navigate("/student/internship"); // need to check if user is student or teacher or head?
+						navigate(
+							location?.state?.prevUrl
+								? location?.state?.prevUrl
+								: "/student/internship"
+						);
 					} else if (res.data.payload.user.role === "teacher") {
-						navigate("/teacher");
+						navigate("/teacher/student-monitor");
 					} else if (res.data.payload.user.role === "head") {
-						navigate("/head");
+						navigate("/head/approve-docs");
+					} else if (res.data.payload.user.role === "secretary") {
+						navigate("/secretary/setup-docs");
+					} else {
+						navigate("/");
 					}
 				}
 			})
@@ -91,7 +99,7 @@ function InLogin() {
 		}
 	};
 
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	return !(user && user.user.token) ? (
 		<div className="bg-light h-100">
@@ -163,7 +171,8 @@ function InLogin() {
 		</div>
 	) : user.user.role === "student" ||
 	  user.user.role === "teacher" ||
-	  user.user.role === "head" ? (
+	  user.user.role === "head" ||
+	  user.user.role === "secretary" ? (
 		<PageNotFound />
 	) : (
 		<PageNotFound />

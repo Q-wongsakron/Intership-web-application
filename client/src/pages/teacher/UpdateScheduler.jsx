@@ -1,85 +1,244 @@
 import React, { useState, useEffect } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import SunEditor from "suneditor-react";
+import "suneditor/dist/css/suneditor.min.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
+import { Modal, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import HtmlParser from "../../components/HtmlParser";
 import btn from "../../components/btn.module.css";
+import axios from "axios";
+import DOMPurify from "dompurify";
 
 function UpdateScheduler() {
-	let testData = [
-		{
-			index: 0,
-			scheduleDate: new Date(),
-			scheduleContent: "test1",
-		},
-		{
-			index: 1,
-			scheduleDate: new Date(),
-			scheduleContent: "test1",
-		},
-		{
-			index: 2,
-			scheduleDate: new Date(),
-			scheduleContent: "test1",
-		},
-		{
-			index: 3,
-			scheduleDate: new Date(),
-			scheduleContent: "test1",
-		},
-		{
-			index: 4,
-			scheduleDate: new Date(),
-			scheduleContent: "test1",
-		},
-	];
+	const navigate = useNavigate();
 
-	// const [isEditorValid, setIsEditorValid] = useState(true);
+	const user = useSelector((state) => state.user);
 
-	const [contentFields, setContentFields] = useState([
-		{ scheduleDate: new Date(), scheduleContent: "" },
-	]);
+	const [showSchedulerPreviewModal, setShowSchedulerPreviewModal] =
+		useState(false);
 
-	const handleScheduleContentChange = (index, e) => {
-		let data = [...contentFields];
-		data[index][e.target.name] = e.target.value;
-		setContentFields(data);
-	};
-	const handleScheduleDateChange = (index, date) => {
-		let data = [...contentFields];
-		data[index]["scheduleDate"] = date;
-		setContentFields(data);
-	};
-	const handleQuillChange = (index, html) => {
-		let data = [...contentFields];
-		data[index]["scheduleContent"] = html;
-		setContentFields(data);
+	const [scheduleContent, setScheduleContent] = useState("");
+	const [noteContent, setNoteContent] = useState("");
+	const [formData, setFormData] = useState({
+		scheduleContent: scheduleContent,
+		note: noteContent,
+	});
+	const [isEditorValid, setIsEditorValid] = useState(true);
+
+	const [data, setData] = useState({
+		detail: "",
+	});
+
+	const [showUpdateModal, setShowUpdateModal] = useState(false);
+	const [showCreateModal, setShowCreateModal] = useState(false);
+
+	const handleScheduleChange = (content) => {
+		setScheduleContent(content);
 	};
 
-	const addContent = (e) => {
+	const handleNoteChange = (content) => {
+		setNoteContent(content);
+	};
+
+	const handleUpdate = async (e) => {
 		e.preventDefault();
-		let newfield = { scheduleDate: new Date(), scheduleContent: "" };
-		setContentFields([...contentFields, newfield]);
-	};
-	const removeContent = (index, e) => {
-		e.preventDefault();
-		let data = [...contentFields];
-		data.splice(index, 1);
-		setContentFields(data);
+
+		const sanitizedHtml = DOMPurify.sanitize(scheduleContent);
+		if (sanitizedHtml.replace(/<[^>]*>/g, "").length === 0) {
+			setIsEditorValid(false);
+		} else {
+			setFormData({
+				...formData,
+				scheduleContent: scheduleContent,
+				note: noteContent,
+			});
+
+			setIsEditorValid(true);
+			setShowUpdateModal(true);
+		}
 	};
 
-	const handleUpdate = (e) => {
-		e.preventDefault();
-		console.log(contentFields);
+	const handleConfirmUpdate = async () => {
+		setShowUpdateModal(false);
+		try {
+			const update = await axios.put(
+				import.meta.env.VITE_APP_API + `/editSchedule/`,
+				formData,
+				{
+					headers: {
+						authtoken: user.user.token,
+					},
+				}
+			);
+		} catch (error) {
+			console.error(error);
+		}
+
+		fetchData();
 	};
 
-	useEffect(() => {}, []);
+	const handleCreate = async (e) => {
+		e.preventDefault();
+
+		const sanitizedHtml = DOMPurify.sanitize(scheduleContent);
+		if (sanitizedHtml.replace(/<[^>]*>/g, "").length === 0) {
+			setIsEditorValid(false);
+		} else {
+			setFormData({
+				...formData,
+				scheduleContent: scheduleContent,
+				note: noteContent,
+			});
+
+			setIsEditorValid(true);
+			setShowCreateModal(true);
+		}
+	};
+
+	const handleConfirmCreate = async () => {
+		setShowCreateModal(false);
+		try {
+			const create = await axios.put(
+				import.meta.env.VITE_APP_API + `/createSchedule/`,
+				formData,
+				{
+					headers: {
+						authtoken: user.user.token,
+					},
+				}
+			);
+		} catch (error) {
+			console.error(error);
+		}
+
+		fetchData();
+	};
+
+	const fetchData = async () => {
+		try {
+			const scheduleData = await axios.get(
+				import.meta.env.VITE_APP_API + "/listSchedule"
+			);
+			setData(scheduleData.data);
+
+			if (scheduleData.data.length !== 0) {
+				// setFormData({
+				// 	scheduleContent: scheduleData.data[0].detail,
+				// 	note: scheduleData.data[0].note,
+				// });
+				setScheduleContent(scheduleData.data[0].detail);
+				setNoteContent(scheduleData.data[0].note);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	useEffect(() => {
+		fetchData();
+	}, []);
+
+	const editorOptions = {
+		height: 200,
+		buttonList: [
+			["undo", "redo"],
+			["removeFormat"],
+			["bold", "underline", "italic", "fontSize"],
+			["font"],
+			["fontColor", "hiliteColor"],
+			["align", "horizontalRule", "list"],
+			["table", "link", "image", "imageGallery"],
+			["showBlocks", "codeView"],
+		],
+		imageRotation: false,
+		fontSize: [12, 14, 16, 18, 20],
+		colorList: [
+			[
+				"#828282",
+				"#FF5400",
+				"#676464",
+				"#F1F2F4",
+				"#FF9B00",
+				"#F00",
+				"#fa6e30",
+				"#000",
+				"rgba(255, 153, 0, 0.1)",
+				"#FF6600",
+				"#0099FF",
+				"#74CC6D",
+				"#FF9900",
+				"#CCCCCC",
+			],
+		],
+		imageUploadUrl: "http://localhost:8080/chazki-gateway/orders/upload",
+		imageGalleryUrl: "http://localhost:8080/chazki-gateway/orders/gallery",
+	};
+
+	const UpdateModal = () => {
+		return (
+			<Modal
+				show={showUpdateModal}
+				onHide={() => setShowUpdateModal(false)}
+				centered
+			>
+				<Modal.Header closeButton>
+					<Modal.Title className="fw-bold">อัปเดตกำหนดการ</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					คุณแน่ใจหรือไม่ว่าต้องการอัปเดตกำหนดการนี้ ? (สามารถแก้ไขได้ตลอดเวลา)
+				</Modal.Body>
+				<Modal.Footer>
+					<Button variant="secondary" onClick={() => setShowUpdateModal(false)}>
+						ปิด
+					</Button>
+					<Button
+						className={`${btn.btn_blue}`}
+						onClick={() => {
+							handleConfirmUpdate();
+							navigate("/schedule");
+						}}
+					>
+						อัปเดต
+					</Button>
+				</Modal.Footer>
+			</Modal>
+		);
+	};
+
+	const CreateModal = () => {
+		return (
+			<Modal
+				show={showCreateModal}
+				onHide={() => setShowCreateModal(false)}
+				centered
+			>
+				<Modal.Header closeButton>
+					<Modal.Title className="fw-bold">อัปเดตกำหนดการ</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					คุณแน่ใจหรือไม่ว่าต้องการอัปเดตกำหนดการนี้ ? (สามารถแก้ไขได้ตลอดเวลา)
+				</Modal.Body>
+				<Modal.Footer>
+					<Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+						ปิด
+					</Button>
+					<Button
+						className={`${btn.btn_blue}`}
+						onClick={() => {
+							handleConfirmCreate();
+							navigate("/schedule");
+						}}
+					>
+						อัปเดต
+					</Button>
+				</Modal.Footer>
+			</Modal>
+		);
+	};
 
 	return (
 		<div className="row">
@@ -89,107 +248,103 @@ function UpdateScheduler() {
 						<h3 className="fw-bold">แก้ไขกำหนดการ</h3>
 					</div>
 					<div className="content">
-						<form
-							id="update-scheduler-form"
-							className="form-outline mb-4"
-							onSubmit={handleUpdate}
-						>
-							<div className="table-responsive">
-								<table className="table">
-									<thead>
-										<tr className="table-light">
-											<th scope="col">#</th>
-											<th scope="col">วันที่</th>
-											<th scope="col">รายละเอียด</th>
-											<th scope="col">ACTIONS</th>
-										</tr>
-									</thead>
-									<tbody>
-										{contentFields.map((input, index) => {
-											return (
-												<tr key={index}>
-													<th scope="row">{index + 1}</th>
-													<td>
-														<div className="form-group">
-															<DatePicker
-																id="scheduleDate"
-																className="form-control mb-3"
-																name="scheduleDate"
-																selected={input.scheduleDate}
-																onChange={(date) =>
-																	handleScheduleDateChange(index, date)
-																}
-																dateFormat="dd/MM/yyyy"
-															/>
-														</div>
-													</td>
-													<td>
-														<div className="form-group mb-4">
-															<ReactQuill
-																id="schedulerEditorContainer"
-																className="editor"
-																theme="snow"
-																value={input.scheduleContent}
-																onChange={(html) =>
-																	handleQuillChange(index, html)
-																}
-															/>
-															{/* <input
-																type="text"
-																id="scheduleContent"
-																className="form-control"
-																name="scheduleContent"
-																value={input.scheduleContent}
-																onChange={(e) =>
-																	handleScheduleContentChange(index, e)
-																}
-																maxLength={100}
-															/>
-															<div className="d-flex justify-content-end">
-																<small className="text-muted">
-																	{input.scheduleContent.length}/100
-																</small>
-															</div> */}
-														</div>
-													</td>
-													<td>
-														<button
-															className={`${btn.btn_grey_outline}`}
-															onClick={(e) => removeContent(index, e)}
-														>
-															<FontAwesomeIcon icon={faTrashCan} />
-														</button>
-													</td>
-												</tr>
-											);
-										})}
-									</tbody>
-								</table>
-							</div>
-
-							<button
-								className={`${btn.btn_blue_outline} w-100`}
-								onClick={(e) => addContent(e)}
+						{data.length !== 0 ? (
+							<form
+								id="update-scheduler-form"
+								className="form-outline mb-4"
+								onSubmit={handleUpdate}
 							>
-								+ เพิ่มรายละเอียด
-							</button>
+								<div className="editorContainer mt-5">
+									<label
+										className="form-label fw-bold"
+										htmlFor="scheduleEditorContainer"
+									>
+										รายละเอียดกำหนดการ <span className="text-danger">*</span>
+									</label>
+									<SunEditor
+										id="scheduleEditorContainer"
+										name="scheduleEditorContainer"
+										onChange={handleScheduleChange}
+										// setContents={formData.scheduleContent}
+										setContents={scheduleContent}
+										setOptions={editorOptions}
+									/>
+									{!isEditorValid && (
+										<p className="text-danger fw-bold">
+											กรุณากรอกรายละเอียดกำหนดการ
+										</p>
+									)}
+								</div>
 
-							<div className="editorContainer mt-5">
-								<label
-									className="form-label fw-bold"
-									htmlFor="schedulerEditorContainer"
-								>
-									หมายเหตุ <span className="text-danger">*</span>
-								</label>
-								<ReactQuill
-									id="schedulerEditorContainer"
-									className="editor"
-									theme="snow"
-									value={null}
-									onChange={handleQuillChange}
-								/>
-							</div>
-						</form>
+								{/* <div className="editorContainer mt-5">
+									<label
+										className="form-label fw-bold"
+										htmlFor="noteEditorContainer"
+									>
+										หมายเหตุ
+									</label>
+									<SunEditor
+										id="noteEditorContainer"
+										name="noteEditorContainer"
+										onChange={handleNoteChange}
+										// setContents={formData.note}
+										setContents={noteContent}
+										setOptions={{
+											height: 200,
+										}}
+									/>
+								</div> */}
+							</form>
+						) : (
+							<form
+								id="update-scheduler-form"
+								className="form-outline mb-4"
+								onSubmit={handleCreate}
+							>
+								<div className="editorContainer mt-5">
+									<label
+										className="form-label fw-bold"
+										htmlFor="scheduleEditorContainer"
+									>
+										รายละเอียดกำหนดการ <span className="text-danger">*</span>
+									</label>
+									<SunEditor
+										id="scheduleEditorContainer"
+										name="scheduleEditorContainer"
+										onChange={handleScheduleChange}
+										// setContents={formData.scheduleContent}
+										setContents={scheduleContent}
+										setOptions={{
+											height: 200,
+										}}
+									/>
+									{!isEditorValid && (
+										<p className="text-danger fw-bold">
+											กรุณากรอกรายละเอียดกำหนดการ
+										</p>
+									)}
+								</div>
+
+								{/* <div className="editorContainer mt-5">
+									<label
+										className="form-label fw-bold"
+										htmlFor="noteEditorContainer"
+									>
+										หมายเหตุ
+									</label>
+									<SunEditor
+										id="noteEditorContainer"
+										name="noteEditorContainer"
+										onChange={handleNoteChange}
+										// setContents={formData.note}
+										setContents={noteContent}
+										setOptions={{
+											height: 200,
+										}}
+									/>
+								</div> */}
+							</form>
+						)}
 					</div>
 				</div>
 			</div>
@@ -200,24 +355,24 @@ function UpdateScheduler() {
 						<div className="d-flex justify-content-between mb-4">
 							<h5 className="card-title fw-bold">อัปเดต</h5>
 						</div>
-						{/* <p className="card-text">
-							<b>Status:</b> Draft
-						</p>
-						<p className="card-text">
-							<b>Visibility:</b> Public
-						</p> */}
 
 						<div className="buttons">
 							<div className="row">
-								<div className="col-12 col-xl-6 mb-2">
+								{/* <div className="col-12 col-xl-6 mb-2">
 									<button
 										className={`btn btn-sm ${btn.btn_grey_outline} w-100`}
 									>
 										Save as a draft
 									</button>
-								</div>
-								<div className="col-12 col-xl-6">
-									<SchedulerPreviewModal />
+								</div> */}
+								<div className="col-12">
+									<button
+										type="button"
+										className={`btn btn-sm ${btn.btn_blue_outline} w-100`}
+										onClick={() => setShowSchedulerPreviewModal(true)}
+									>
+										<FontAwesomeIcon icon={faEye} /> ดูตัวอย่าง
+									</button>
 								</div>
 							</div>
 
@@ -236,36 +391,49 @@ function UpdateScheduler() {
 					</div>
 				</div>
 
-				<div className="container p-3 p-md-4 mt-4 mt-lg-4 container-card">
-					<div className="card-body">
-						<div className="d-flex justify-content-between mb-4">
-							<h5 className="card-title fw-bold">เพิ่มกำหนดการ</h5>
+				<Modal
+					show={showSchedulerPreviewModal}
+					fullscreen={true}
+					onHide={() => setShowSchedulerPreviewModal(false)}
+					centered
+					size="xl"
+				>
+					<Modal.Header closeButton>
+						<Modal.Title className="fw-bold">ตัวอย่าง</Modal.Title>
+					</Modal.Header>
+					<Modal.Body className="bg-light">
+						<div id="quill-postDesc" className="mt-2 mt-sm-0">
+							{scheduleContent ? (
+								<>
+									{/* <HtmlParser htmlString={formData.scheduleContent} /> */}
+									<SunEditor
+										onChange={null}
+										setContents={scheduleContent}
+										disable={true}
+										disableToolbar={true}
+										hideToolbar={true}
+									/>
+								</>
+							) : (
+								<h6 className="text-muted">ยังไม่ได้กรอกข้อมูล</h6>
+							)}
 						</div>
-
-						<div className="mb-4">
-							<div className="row">
-								<div className="col-12">
-									{/* <button
-										className={`${btn.btn_blue_outline} w-100`}
-										onClick={addScheduler}
-									>
-										+ เพิ่มกำหนดการ
-									</button> */}
-								</div>
-								<div className="col-12 mt-2">
-									<button
-										className={`${btn.btn_blue_outline} w-100`}
-										onClick={(e) => addContent(e)}
-									>
-										+ เพิ่มรายละเอียด
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button
+							variant="secondary"
+							onClick={() => {
+								setShowSchedulerPreviewModal(false);
+							}}
+						>
+							ปิด
+						</Button>
+					</Modal.Footer>
+				</Modal>
 
 				<PublishCard />
+				<UpdateModal />
+				<CreateModal />
 			</div>
 		</div>
 	);
@@ -279,22 +447,22 @@ function UpdateScheduler() {
 					<div className="d-flex justify-content-between mb-4">
 						<h5 className="card-title fw-bold">อัปเดต</h5>
 					</div>
-					{/* <p className="card-text">
-                        <b>Status:</b> Draft
-                    </p>
-                    <p className="card-text">
-                        <b>Visibility:</b> Public
-                    </p> */}
 
 					<div className="buttons">
 						<div className="row">
-							<div className="col-12 col-xl-6 mb-2">
+							{/* <div className="col-12 col-xl-6 mb-2">
 								<button className={`btn btn-sm ${btn.btn_grey_outline} w-100`}>
 									Save as a draft
 								</button>
-							</div>
-							<div className="col-12 col-xl-6">
-								<SchedulerPreviewModal />
+							</div> */}
+							<div className="col-12">
+								<button
+									type="button"
+									className={`btn btn-sm ${btn.btn_blue_outline} w-100`}
+									onClick={() => setShowSchedulerPreviewModal(true)}
+								>
+									<FontAwesomeIcon icon={faEye} /> ดูตัวอย่าง
+								</button>
 							</div>
 						</div>
 
@@ -348,6 +516,16 @@ function UpdateScheduler() {
 								></button>
 							</div>
 							<div className="modal-body bg-light">
+								<div id="quill-postDesc" className="mt-2 mt-sm-0">
+									{formData.scheduleContent ? (
+										<>
+											<HtmlParser htmlString={formData.scheduleContent} />
+										</>
+									) : (
+										<p className="text-muted">กำลังโหลดข้อมูล...</p>
+									)}
+									{/* {jobPostDesc} */}
+								</div>
 								{/* <NewsPreview formData={formData} /> */}
 							</div>
 							<div className="modal-footer">
@@ -359,12 +537,12 @@ function UpdateScheduler() {
 									ปิดหน้าต่าง
 								</button>
 								{/* <button
-									type="button"
-									className={`btn btn-sm ${btn.btn_blue}`}
-									onClick={handlePublish}
-								>
-									Publish Now
-								</button> */}
+                                    type="button"
+                                    className={`btn btn-sm ${btn.btn_blue}`}
+                                    onClick={handlePublish}
+                                >
+                                    Publish Now
+                                </button> */}
 							</div>
 						</div>
 					</div>

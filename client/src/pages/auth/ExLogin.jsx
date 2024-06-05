@@ -17,7 +17,7 @@ function ExLogin() {
 	const dispatch = useDispatch();
 
 	const [formData, setFormData] = useState({
-		username: "",
+		usernameOrEmail: "",
 		password: "",
 	});
 
@@ -49,7 +49,9 @@ function ExLogin() {
 					loginRedux({
 						token: res.data.token,
 						username: res.data.payload.user.username, // will delete
+						email: res.data.payload.user.email,
 						role: res.data.payload.user.role, //
+						isVerified: res.data.payload.user.verified
 					})
 				);
 				localStorage.setItem("token", res.data.token);
@@ -84,7 +86,8 @@ function ExLogin() {
 		}
 	};
 
-	const { user } = useSelector((state) => ({ ...state }));
+	// const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	return !(user && user.user.token) ? (
 		<div className="bg-light h-100">
@@ -110,14 +113,14 @@ function ExLogin() {
 											ชื่อผู้ใช้
 										</label> */}
 										<input
-											type="username"
-											id="inputUsername"
-											className="form-control p-3"
-											placeholder="ชื่อผู้ใช้"
-											name="username"
-											value={formData.username}
-											onChange={handleInputChange}
-											required
+										type="text"
+										id="inputUsername"
+										className="form-control p-3"
+										placeholder="อีเมลหรือชื่อผู้ใช้"
+										name="usernameOrEmail"
+										value={formData.usernameOrEmail}
+										onChange={handleInputChange}
+										required
 										/>
 									</div>
 
@@ -148,6 +151,15 @@ function ExLogin() {
 										เข้าสู่ระบบ
 									</button>
 								</form>
+								<p className="text-end">
+								<Link
+										className="a-text"
+                                        to={"/forgotPassword"}
+                                    >
+                                        ลืมรหัสผ่าน
+                                </Link>
+
+								</p>
 
 								<p className="text-end">
 									ยังไม่มีบัญชีผู้ใช้ ?{" "}

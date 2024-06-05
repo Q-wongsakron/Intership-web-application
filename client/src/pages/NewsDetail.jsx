@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import HtmlParser from "../components/HtmlParser";
 import Loading from "../components/Loading";
+import PageNotFound from "./PageNotFound";
 import axios from "axios";
 
 function NewsDetail() {
@@ -26,8 +27,10 @@ function NewsDetail() {
 	const fetchData = async () => {
 		try {
 			const response = await axios.get(
-				`http://localhost:5500/api/oneNews/${params.articleId}`
+				import.meta.env.VITE_APP_API + `/oneNews/${params.articleId}`
 			);
+
+			// console.log(response.data);
 			setData(response.data);
 
 			if (response.data.images) {
@@ -56,12 +59,16 @@ function NewsDetail() {
 		fetchData();
 	}, [params.articleId]);
 
+	if (!data) {
+		return <PageNotFound />;
+	}
+
 	const maxTitleLength = 30;
 	let truncatedTitle = loading
 		? "Loading..."
-		: data.topic.slice(0, maxTitleLength);
+		: data?.topic.slice(0, maxTitleLength);
 
-	if (data && data.topic.length > maxTitleLength) {
+	if (data && data?.topic.length > maxTitleLength) {
 		truncatedTitle += "...";
 	}
 
@@ -101,7 +108,10 @@ function NewsDetail() {
 								) : (
 									<Zoom>
 										<img
-											src={`http://localhost:5500/uploads/2566/${data.cover_img}`}
+											src={
+												import.meta.env.VITE_FILE_API +
+												`/uploads/${data.cover_img}`
+											}
 											alt="News Cover Image"
 											className="img-fluid rounded"
 											style={{
@@ -133,7 +143,9 @@ function NewsDetail() {
 											// <Zoom>
 											<img
 												key={index}
-												src={`http://localhost:5500/uploads/2566/${imageUrl}`}
+												src={
+													import.meta.env.VITE_FILE_API + `/uploads/${imageUrl}`
+												}
 												alt={`Image ${index}`}
 												className="img-fluid rounded"
 												style={{

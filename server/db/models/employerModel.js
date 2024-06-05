@@ -13,6 +13,12 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         field: "username",
       },
+      email : {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        field: "email",
+      },
+      
       password: {
         type: Sequelize.STRING(100),
         allowNull: false,
@@ -64,7 +70,7 @@ module.exports = (sequelize, Sequelize) => {
         field: "contact_tel",
       },
       about: {
-        type: Sequelize.STRING(1000),
+        type: Sequelize.TEXT(),
         allowNull: true,
         field: "about",
       },
@@ -79,6 +85,13 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: "notverify",
         field: "status",
       },
+      verified : {
+        type: Sequelize.BOOLEAN(),
+        allowNull: false,
+        defaultValue: false,
+        field: "verified",
+      },
+
       role: {
         type: Sequelize.STRING(100),
         allowNull: false,

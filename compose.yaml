@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssword1234
+      MYSQL_DATABASE: internship4
+      MYSQL_USER: wongsakron
+      MYSQL_PASSWORD: P@ssword1234
+      
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mynetwork
+
+  api:
+    build: ./server/
+    ports:
+      - "5500:5500"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: wongsakron
+      DB_PASSWORD: P@ssword1234
+      DB_DATABASE: internship4
+    networks:
+      - mynetwork
+
+  web:
+    build: ./client/
+    ports:
+      - "9999:9999" 
+    environment:
+      - VITE_APP_API=http://192.168.56.1:5500/api
+      - VITE_FILE_API=http://192.168.56.1:5500
+    networks:
+      - mynetwork
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: wongsakron
+      PMA_PASSWORD: P@ssword1234
+    ports:
+      - "8080:80"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge

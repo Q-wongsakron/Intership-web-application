@@ -4,12 +4,14 @@ const {
     uploadCoverImg,
     uploadImages,
     allNews,
-    oneNews
+    oneNews,
+    editNews,
+    deleteNews,
 } = require("../controllers/newsController")
 
 
 const { auth } = require("../middleware/auth")
-const upload = require("../middleware/multerStorage");
+const { upload, resizeImage } = require("../middleware/multerStorage");
 
 const router = express.Router()
 
@@ -20,4 +22,6 @@ router.get("/oneNews/:id", oneNews)
 router.put("/uploadCover",auth, upload.single("coverImg"), uploadCoverImg);
 router.put("/uploadImages", auth, upload.array("images"),uploadImages);
 
+router.put("/editNews/:id", auth, editNews);
+router.delete("/deleteNews/:id", auth, deleteNews);
 module.exports = router

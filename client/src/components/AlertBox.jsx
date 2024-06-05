@@ -15,7 +15,7 @@ export default function AlertBox({ message, duration = 3000 }) {
 
 	return (
 		<div className={`alert-box ${isVisible ? "" : "hidden"}`}>
-			<p>{message}</p>
+			<p className="mb-0">{message}</p>
 		</div>
 	);
 }

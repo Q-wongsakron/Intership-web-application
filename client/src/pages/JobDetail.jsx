@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import axios from "axios";
@@ -26,8 +26,10 @@ import HtmlParser from "../components/HtmlParser";
 export default function JobDetail() {
 	const params = useParams();
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	// let parsedPositions;
+	const [isPostValid, setIsPostValid] = useState(true);
 	const [jobData, setJobData] = useState(null);
 	const [jobPostDesc, setJobPostDesc] = useState(null);
 	const [parsedPositions, setparsedPositions] = useState(null);
@@ -38,8 +40,7 @@ export default function JobDetail() {
 	const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [dropdownOptions, setDropdownOptions] = useState([]);
-
-
+	const [isPositionSelected, setIsPositionSelected] = useState(true);
 
 	const [loading, setLoading] = useState(true);
 
@@ -64,11 +65,18 @@ export default function JobDetail() {
 	const fetchData = async () => {
 		try {
 			const response = await getPost(params.jobId);
+			const job = response.data;
 
-			if (response.status >= 200 && response.status < 300) {
-				const job = response.data;
+			if (job) {
+				// const currentDate = new Date();
+				// setIsPostValid(currentDate > new Date(job.post.dateEndPost));
+				// console.log(job);
 
-				if (job) {
+				// เช็ค url ว่า jobTitle param มันตรงกับ job_title ที่ fetch มาไหม ถ้าไม่ตรงก็ไม่ setJobData
+				if (
+					params.jobTitle ===
+					job.post.job_title.toLowerCase().replaceAll(" ", "-")
+				) {
 					let positionsArray;
 
 					if (typeof job.post.cat === "string") {
@@ -80,14 +88,20 @@ export default function JobDetail() {
 					// console.log("positionsArray:", positionsArray);
 					setparsedPositions(positionsArray);
 					setJobData(job);
-					setDropdownOptions(positionsArray);
+					// setDropdownOptions(positionsArray);
+					setDropdownOptions(
+						Array.isArray(positionsArray) &&
+							positionsArray.filter((position, index) => {
+								if (JSON.parse(job.post.count_values)[position] !== 0) {
+									return position;
+								}
+							})
+					);
 
 					setJobPostDesc(job.post.desc);
-				} else {
-					setJobData(null);
 				}
 			} else {
-				throw new Error(`Failed to fetch data. Status: ${response.status}`);
+				setJobData(null);
 			}
 		} catch (error) {
 			console.error("Error fetching data:", error.message);
@@ -101,33 +115,36 @@ export default function JobDetail() {
 		fetchData();
 	}, [params.jobId]);
 
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	const handleApplyClick = () => {
 		if (user.user.token && user.user.role === "student") {
 			setIsApplyModalOpen(true);
 		} else {
-			navigate("/internal/login");
+			navigate("/internal/login", { state: { prevUrl: location.pathname } });
 		}
 	};
 
 	const handleApplyModalClose = () => {
+		setIsPositionSelected(true);
 		setIsApplyModalOpen(false);
 	};
 
 	const handleDropdownSelect = (eventKey) => {
+		setIsPositionSelected(true);
 		setSelectedOption(eventKey);
 	};
 
 	const handleConfirmeApplyModal = async () => {
 		try {
 			if (selectedOption) {
+				setIsPositionSelected(true);
 				const applyWork = {
 					job_id: jobData.post.job_id,
 					position: selectedOption,
 				};
 				const response = await axios.post(
-					"http://localhost:5500/api/createApply",
+					import.meta.env.VITE_APP_API + "/createApply",
 					applyWork,
 					{
 						headers: {
@@ -141,6 +158,7 @@ export default function JobDetail() {
 				setIsApplyModalOpen(false);
 				setIsResponseModalOpen(true);
 			} else {
+				setIsPositionSelected(false);
 				console.error("No option selected");
 			}
 		} catch (error) {
@@ -182,22 +200,74 @@ export default function JobDetail() {
 	if (!jobData) {
 		return <PageNotFound />;
 	}
-	console.log(jobData);
+	// if (!jobData || isPostValid) {
+	// 	return <PageNotFound />;
+	// }
+	// console.log(jobData);
+
+	const maxCompanyNameLength = 35;
+	let truncatedCompanyName = loading
+		? "Loading..."
+		: jobData?.profile?.company_name.slice(0, maxCompanyNameLength);
+	if (jobData?.profile?.company_name.length > maxCompanyNameLength) {
+		truncatedCompanyName += "...";
+	}
+	const maxTitleLength = 35;
+	let truncatedTitle = loading
+		? "Loading..."
+		: jobData?.post?.job_title.slice(0, maxTitleLength);
+	if (jobData?.post?.job_title.length > maxTitleLength) {
+		truncatedTitle += "...";
+	}
 
 	const currentDate = Date.now();
 	const startPostDate = new Date(jobData.post.dateStartPost);
+	const endPostDate = new Date(jobData.post.dateEndPost);
+	const formattedStartPostDate = startPostDate.toLocaleDateString("en-GB");
+	const formattedEndPostDate = endPostDate.toLocaleDateString("en-GB");
 	const isPostNotStart = currentDate < startPostDate;
-	
+	const isPostEnd = currentDate > endPostDate;
+
 	return (
 		<>
 			<div className="container p-2 p-lg-3 p-xl-5 mb-3 mb-xl-0">
-				<div className="container p-1 p-sm-2 px-sm-4 jobNavigationCard">
+				{/* <div className="container p-1 p-sm-2 px-sm-4 jobNavigationCard">
 					<div className="d-flex justify-content-between">
 						<a className={`a-text`} onClick={goBack}>
 							ย้อนกลับ
 						</a>
 						<></>
 					</div>
+				</div> */}
+
+				<div className="fw-bold mb-4">
+					<Link to={"/"}>หน้าหลัก</Link>
+					<span>{` > `}</span>
+					<Link to={"/alljob"}>ตำแหน่งฝึกงานทั้งหมด</Link>
+					<span>{` > `}</span>
+					{/* <Link
+						to={
+							location?.state?.companyId
+								? `/employer/${location?.state?.companyId}/profile`
+								: `/`
+						}
+					>
+						{location?.state?.companyName
+							? location?.state?.companyName
+							: "บริษัท/หน่วยงาน"}
+					</Link> */}
+					<Link
+						to={
+							jobData?.profile?.employer_id
+								? `/employer/${jobData?.profile?.employer_id}/profile`
+								: `/`
+						}
+					>
+						{jobData?.profile?.company_name
+							? truncatedCompanyName
+							: "บริษัท/หน่วยงาน"}
+					</Link>
+					<span>{jobData?.post?.job_title ? ` > ` + truncatedTitle : ""}</span>
 				</div>
 
 				<div className="row">
@@ -209,7 +279,8 @@ export default function JobDetail() {
 										<img
 											src={
 												jobData.profile.company_pic
-													? `http://localhost:5500/uploads/${jobData.profile.company_pic}`
+													? import.meta.env.VITE_FILE_API +
+													  `/uploads/${jobData.profile.company_pic}`
 													: employerDefaultImg
 											}
 											alt="Company Logo Image"
@@ -235,8 +306,10 @@ export default function JobDetail() {
 											รับสมัคร :{" "}
 											{jobData ? (
 												<>
-													{jobData.post.dateStartPost} ถึง{" "}
-													{jobData.post.dateEndPost}
+													{formattedStartPostDate} ถึง{" "}
+													<span className={`${isPostEnd ? "text-danger" : ""}`}>
+														{formattedEndPostDate}
+													</span>
 												</>
 											) : (
 												<>กำลังโหลดข้อมูล...</>
@@ -269,6 +342,12 @@ export default function JobDetail() {
 											to={`/employer/${
 												jobData ? jobData.post.emp_id : "PageNotFound"
 											}/profile`}
+											state={{
+												prevUrl: location.pathname,
+												postName: jobData.post.job_title
+													? jobData.post.job_title
+													: "โพสต์",
+											}}
 											className={`d-none d-md-block w-50 text-center a-btn ${btn.btn_grey_outline}`}
 										>
 											ดูโปรไฟล์
@@ -291,8 +370,12 @@ export default function JobDetail() {
 												รับสมัคร :{" "}
 												{jobData ? (
 													<>
-														{jobData.post.dateStartPost} ถึง{" "}
-														{jobData.post.dateEndPost}
+														{formattedStartPostDate} ถึง{" "}
+														<span
+															className={`${isPostEnd ? "text-danger" : ""}`}
+														>
+															{formattedEndPostDate}
+														</span>
 													</>
 												) : (
 													<>กำลังโหลดข้อมูล...</>
@@ -330,7 +413,15 @@ export default function JobDetail() {
 												<>
 													{Array.isArray(parsedPositions) &&
 														parsedPositions.map((position, index) => (
-															<h6 key={index}>- {position}</h6>
+															<h6 key={index}>
+																- {position} (จำนวนรับที่เหลือ{" "}
+																{jobData.post &&
+																	jobData.post.count_values &&
+																	JSON.parse(jobData.post.count_values)[
+																		position
+																	]}
+																)
+															</h6>
 														))}
 												</>
 											)}
@@ -363,7 +454,21 @@ export default function JobDetail() {
 								</div>
 								<div className="mt-2 mt-sm-0">
 									{jobData ? (
-										<h6>{jobData.post.qualifications}</h6>
+										<div>
+											{/* {jobData.post.qualifications
+												.split("\n")
+												.filter((line) => line.trim() !== "")
+												.map((line, index) => (
+													<p key={index} className="mb-1">{line.trim()}</p>
+												))} */}
+											{jobData.post.qualifications
+												.split("\n")
+												.map((line, index) => (
+													<p key={index} className="mb-1">
+														{line}
+													</p>
+												))}
+										</div>
 									) : (
 										<p className="text-muted">กำลังโหลดข้อมูล...</p>
 									)}
@@ -375,10 +480,16 @@ export default function JobDetail() {
 									<h5 className="fw-bold">สวัสดิการ</h5>
 								</div>
 								<div className="mt-2 mt-sm-0">
-									{jobData ? (
-										<h6>{jobData.post.welfare}</h6>
+									{jobData.post.welfare ? (
+										<div>
+											{jobData.post.welfare.split("\n").map((line, index) => (
+												<p key={index} className="mb-1">
+													{line}
+												</p>
+											))}
+										</div>
 									) : (
-										<p className="text-muted">กำลังโหลดข้อมูล...</p>
+										<p className="text-muted">-</p>
 									)}
 								</div>
 							</div>
@@ -390,8 +501,16 @@ export default function JobDetail() {
 								<div className="mt-2 mt-sm-0">
 									{jobData ? (
 										<>
-											<span>{jobData.post.location}</span>
-											<br />
+											<div>
+												{jobData.post.location
+													.split("\n")
+													.map((line, index) => (
+														<p key={index} className="mb-1">
+															{line}
+														</p>
+													))}
+											</div>
+
 											<span>
 												{jobData.post.subdistrict}, {jobData.post.district},{" "}
 												{jobData.post.province}, {jobData.post.pcode}
@@ -408,8 +527,14 @@ export default function JobDetail() {
 									<h5 className="fw-bold">รายละเอียดเพิ่มเติม</h5>
 								</div>
 								<div className="mt-2 mt-sm-0">
-									{jobData ? (
-										<h6>{jobData.post.other}</h6>
+									{jobData.post.other ? (
+										<div>
+											{jobData.post.other.split("\n").map((line, index) => (
+												<p key={index} className="mb-1">
+													{line}
+												</p>
+											))}
+										</div>
 									) : (
 										<p className="text-muted">-</p>
 									)}
@@ -435,10 +560,14 @@ export default function JobDetail() {
 						<span className="fw-bold">{jobData.profile.company_name}</span>
 					</p>
 					<div className="d-flex">
-						<p className="me-2">ในตำเเหน่ง : </p>
+						<p className="me-2">ในตำแหน่ง : </p>
 						<Dropdown onSelect={handleDropdownSelect}>
-							<Dropdown.Toggle variant="dark" id="dropdown-basic">
-								{selectedOption || "Select Option"}
+							<Dropdown.Toggle
+								variant="outline-dark"
+								id="dropdown-basic"
+								size="sm"
+							>
+								{selectedOption || "เลือกตำแหน่ง"}
 							</Dropdown.Toggle>
 							<Dropdown.Menu>
 								{dropdownOptions.map((option, index) => (
@@ -449,6 +578,11 @@ export default function JobDetail() {
 							</Dropdown.Menu>
 						</Dropdown>
 					</div>
+					{!isPositionSelected && (
+						<small className="text-danger fw-bold">
+							กรุณาเลือกตำแหน่งที่ต้องการสมัครฝึกงาน
+						</small>
+					)}
 				</Modal.Body>
 				<Modal.Footer>
 					<Button variant="secondary" onClick={handleApplyModalClose}>
@@ -470,7 +604,7 @@ export default function JobDetail() {
 	function SideCard({ displayClass }) {
 		return (
 			<div
-				className={`container p-3 p-sm-4 mt-3 sticky-lg-top ${displayClass} container-card jobInfoCard1 bg-light-blue`}
+				className={`container p-3 p-sm-4 mt-3 ${displayClass} container-card jobInfoCard1 bg-light-blue`}
 			>
 				{/* <div className="d-flex flex-column flex-md-row justify-content-sm-between text-md-center p-2"> */}
 				{jobData ? (
@@ -491,8 +625,8 @@ export default function JobDetail() {
 							</p>
 							{jobData ? (
 								<>
-									<span>{jobData.post.location}</span>
-									<br />
+									{/* <span>{jobData.post.location}</span>
+									<br /> */}
 									<span>
 										{jobData.post.subdistrict}, {jobData.post.district},{" "}
 										{jobData.post.province}, {jobData.post.pcode}
@@ -507,19 +641,34 @@ export default function JobDetail() {
 								<FontAwesomeIcon icon={faPerson} /> จำนวนรับ
 							</p>
 							{jobData ? (
-								<p>{jobData.post.position_num}</p>
+								<>
+									{parsedPositions && (
+										<>
+											{Array.isArray(parsedPositions) &&
+												parsedPositions.map((position, index) => (
+													<h6 key={index}>
+														{position} (
+														{jobData.post &&
+															jobData.post.count_values &&
+															JSON.parse(jobData.post.count_values)[position]}
+														)
+													</h6>
+												))}
+										</>
+									)}
+								</>
 							) : (
-								<p className="text-muted">กำลังโหลดข้อมูล...</p>
+								<p>กำลังโหลดข้อมูล...</p>
 							)}
 						</div>
 						<div className="mb-4">
 							<p className="fw-bold mb-2">
 								<FontAwesomeIcon icon={faBahtSign} /> เบี้ยเลี้ยง
 							</p>
-							{jobData ? (
+							{jobData.post.salary ? (
 								<p>{jobData.post.salary}</p>
 							) : (
-								<p className="text-muted">กำลังโหลดข้อมูล...</p>
+								<p className="text-muted">-</p>
 							)}
 						</div>
 						<div className="mb-4">
@@ -536,26 +685,32 @@ export default function JobDetail() {
 						<div className="">
 							{user &&
 							(user.user.role === "admin" ||
+								user.user.role === "employee" ||
 								user.user.role === "head" ||
+								user.user.role === "secretary" ||
 								user.user.role === "teacher" ||
 								user.user.role === "employer") ? (
 								""
-							) :isPostNotStart?(<>
-								<Button
-									className={`${btn.btn_red} w-100`}
-									
-								>
-									ยังไม่เปิดให้สมัคร
-								</Button>
-							</>) 
-							: (
+							) : isPostNotStart ? (
 								<>
-									<Button
+									<button className={`btn btn-secondary w-100`} disabled>
+										ยังไม่เปิดให้สมัคร
+									</button>
+								</>
+							) : isPostEnd ? (
+								<>
+									<button className={`btn btn-danger w-100`} disabled>
+										หมดเวลาสมัครแล้ว
+									</button>
+								</>
+							) : (
+								<>
+									<button
 										className={`${btn.btn_blue} w-100`}
 										onClick={handleApplyClick}
 									>
 										สมัครฝึกงานนี้
-									</Button>
+									</button>
 								</>
 							)}
 						</div>

@@ -54,6 +54,11 @@ module.exports = (sequelize, Sequelize) => {
                 allowNull: false,
                 field: "require_doc",
             },
+            print:{
+                type: Sequelize.INTEGER(10),
+                allowNull: true,
+                field: "print",
+            },
             status:{
                 type: Sequelize.STRING(100),
                 allowNull: true,

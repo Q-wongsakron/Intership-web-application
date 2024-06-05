@@ -5,11 +5,9 @@ db.sequelize.sync()
 
 exports.createNews = async(req, res) => {
     try{
-        const teacher_id = req.user.id
+
         const { topic, detail } = req.body;
-        console.log(teacher_id)
         const createNews = await news.create({
-            teacher_id : teacher_id,
             topic,
             detail,
         })
@@ -43,7 +41,34 @@ exports.oneNews = async(req, res) => {
         res.status(500).json({message: "server error"})
     }
 }
-// ใช้วิธี เเยกส่งโดยส่ง text ไปสร้าง database ก่อน ใน react
+
+exports.editNews = async(req, res) => {
+    try{
+        const {id} = req.params
+        const { topic, detail } = req.body;
+        const editNews = await news.update({
+            topic,
+            detail,
+        },{ where: { news_id : id}})
+        res.status(200).json({ message: "แก้ไขข่าวสารสำเร็จ" });
+    }catch(err){
+        console.error(err)
+        res.status(500).json({message: "server error"})
+    }
+}
+
+exports.deleteNews = async(req, res) => {
+    try{
+        const {id} = req.params
+        const deleteNews = await news.destroy({where: {news_id : id}})
+        res.status(200).json({ message: "ลบข่าวสารสำเร็จ" });
+    }catch(err){
+        console.error(err)
+        res.status(500).json({message: "server error"})
+    }
+}
+
+// ใช้วิธี แยกส่งโดยส่ง text ไปสร้าง database ก่อน ใน react
 exports.uploadCoverImg = async (req, res) => {
     try{
         if(req.file){
@@ -68,14 +93,14 @@ exports.uploadImages = async (req, res) => {
         const getlastNews = await news.findAll()
         const lastnews = getlastNews.length - 1
 
-        console.log(req.files);
-        if(req.file){
+        console.log("hello PIC",req.files);
+        if(req.files){
             // Assuming req.files is an array of uploaded files
             const imagePaths = req.files.map(file => `${req.user.username}/${file.originalname}`);
 
             // Concatenate the image paths with commas
             const concatenatedPaths = imagePaths.join(',');
-
+            console.log("concatenated paths", concatenatedPaths)
             // Assuming you want to update the database with a comma-separated string of image paths
             const uplaodImages = await news.update({
                 images: concatenatedPaths

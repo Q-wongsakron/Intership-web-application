@@ -1,5 +1,4 @@
 const db = require("../db/index");
-const { secret } = require("../config");
 const { employer, student, posts_job } = db;
 db.sequelize.sync();
 
@@ -33,7 +32,7 @@ exports.getProfileEmployer = async (req, res) => {
 			where: { employer_id: req.user.id },
 		});
 		const post = await posts_job.findAll({
-			where: { emp_id: req.user.id },
+			where: { emp_id: req.user.id , status: 'active'},
 		});
 		const payload = { profile: profile, post: post };
 		res.status(200).json(payload);
@@ -53,7 +52,10 @@ exports.getProfileEmployerId = async (req, res) => {
 			},
 		});
 		const post = await posts_job.findAll({
-			where: { emp_id: employer_id },
+			where: { 
+				emp_id: employer_id,
+				status: "active"
+			 },
 		});
 
 		if (!profile) {
@@ -92,7 +94,7 @@ exports.updateProfileStudent = async (req, res) => {
 				experience: experience,
 				skill: skill,
 				gpa: gpa,
-				// resume: `http://localhost:5500/api/resume/${req.file.originalname}`,
+				// resume: import.meta.env.VITE_APP_API+`/resume/${req.file.originalname}`,
 			},
 			{ where: { std_id: req.user.username } }
 		);
@@ -141,6 +143,22 @@ exports.updateProfileEmployer = async (req, res) => {
 		res.status(500).json({ message: err.message });
 	}
 };
+
+exports.endIntern = async (req, res) => {
+	try {
+        const { id } = req.params;
+        const end_intern = await student.update(
+            {
+                status: 4,
+            },
+            { where: { std_id: id } }
+        );
+        return res.status(200).send("Update Success");
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: err.message });
+    }
+}
 
 // exports.getResume = async (req, res) => {
 //   try {

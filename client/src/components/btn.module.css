@@ -1,3 +1,9 @@
+button:disabled,
+button[disabled] {
+	opacity: 50%;
+	cursor: default;
+}
+
 .btn_grey {
 	white-space: nowrap;
 	color: var(--white);

@@ -3,11 +3,11 @@ const {
 	listEmployer,
 	verifyEmployer,
 } = require("../controllers/verifyEmployer");
-const { auth, adminCheck } = require("../middleware/auth");
+const { auth } = require("../middleware/auth");
 const router = express.Router();
 
-router.get("/listEmployer", auth, adminCheck, listEmployer);
+router.get("/listEmployer", auth, listEmployer);
 
-router.post("/verifyEmployer", auth, adminCheck, verifyEmployer);
+router.post("/verifyEmployer", auth, verifyEmployer);
 
 module.exports = router;

@@ -29,10 +29,19 @@ export default function Sidebar() {
 	}, []);
 
 	// data from redux store
-	const { user } = useSelector((state) => ({ ...state }));
+	// const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	const location = useLocation();
-	const allowedPaths = ["/admin", "/student", "/employer", "/teacher"];
+	const allowedPaths = [
+		"/admin",
+		"/student",
+		"/employer",
+		"/teacher",
+		"/head",
+		"/doc",
+		"/secretary",
+	];
 	const shouldRenderSidebar = allowedPaths.some((path) =>
 		location.pathname.startsWith(path)
 	);
@@ -40,6 +49,7 @@ export default function Sidebar() {
 	let sidebarHeader = "Sidebar";
 	let sidebarItems1 = [];
 	let sidebarItems2 = [];
+	let sidebarItems3 = [];
 	let sidebarComponents;
 
 	// const user = { user: { role: "admin", length: 555 } };
@@ -48,54 +58,121 @@ export default function Sidebar() {
 		if (user.user.role === "admin") {
 			sidebarHeader = "จัดการระบบ";
 			sidebarItems1 = [
-				{ id: 1, label: "ผู้ดูแล", href: "/admin" },
-				{ id: 2, label: "บุคลากร", href: "/admin/teacher-list" },
-				{ id: 3, label: "นักศึกษา", href: "/admin/student-list" },
-				{ id: 4, label: "บริษัท/หน่วยงาน", href: "/admin/employer-list" },
+				{ label: "ผู้ดูแลระบบ", href: "/admin" },
+				{ label: "จัดการสิทธิ์ (บุคลากร)", href: "/admin/change-role" },
+				{
+					label: "อนุมัติผู้ใช้ (บริษัท/หน่วยงาน)",
+					href: "/admin/employer-list",
+				},
+				{
+					label: "รีเซตผู้ใช้ (นักศึกษา)",
+					href: "/admin/student-list",
+				},
 			];
 			sidebarItems2 = [
-				{ id: 1, label: "จัดการสิทธิ์?", href: "/admin" },
-				{ id: 2, label: "upload-csv", href: "/admin/upload-csv" },
-				{ id: 3, label: "change-role", href: "/admin/change-role" },
-				{ id: 4, label: "ประชาสัมพันธ์", href: "/admin/create-news" },
-				{ id: 5, label: "ตั้งค่าหนังสือขอความอนุเคราะห์", href: "/admin/setup-docs" },
-				{ id: 6, label: "อนุมัติเอกสาร", href: "/admin/approve-docs" },
-				{ id: 7, label: "สถานะนักศึกษา", href: "/admin/student-mornitor" },
-				{ id: 8, label: "แก้ไขกำหนดการ", href: "/admin/update-scheduler" },
+				{ label: "+ ประชาสัมพันธ์", href: "/admin/create-news" },
+				{ label: "แก้ไขกำหนดการ", href: "/admin/update-scheduler" },
+				{ label: "อนุมัติเอกสาร", href: "/admin/approve-docs" },
+				{ label: "เอกสารที่อนุมัติแล้ว", href: "/admin/approved-docs" },
+				{ label: "สถานะนักศึกษา", href: "/admin/student-monitor" },
+			];
+			sidebarItems3 = [
+				{ label: "อัปโหลดรายชื่อนักศึกษา", href: "/admin/upload-csv" },
+				{
+					label: "ตั้งค่าเอกสารเบื้องต้น",
+					href: "/admin/setup-docs",
+				},
+				{ label: "ส่งออกข้อมูลแบบประเมิน", href: "/admin/export-eval" },
 			];
 		} else if (user.user.role === "student") {
 			sidebarItems1 = [
-				{ id: 1, label: "การฝึกงานของฉัน", href: "/student/internship" },
-				{ id: 2, label: "ข้อมูลที่ฝึกงาน", href: "/student/my-employer" },
-				{ id: 3, label: "อัปโหลดเอกสาร", href: "/student/upload" },
-				{ id: 4, label: "ทำแบบประเมิน", href: "/student/evaluation" },
-				{ id: 5, label: "ไฟล์เอกสารทั้งหมด", href: "/student/documents" },
+				{ label: "การฝึกงานของฉัน", href: "/student/internship" },
+				{ label: "ข้อมูลที่ฝึกงาน", href: "/student/my-employer" },
+				{ label: "อัปโหลดเอกสาร", href: "/student/upload" },
+				{ label: "ทำแบบประเมิน", href: "/student/evaluation" },
+				{ label: "คลังเอกสารของฉัน", href: "/student/documents" },
 			];
 			sidebarItems2 = [
-				{ id: 1, label: "ยื่นที่ฝึกงานเอง", href: "/student/self-enroll" },
-				{ id: 2, label: "โปรไฟล์", href: "/student/profile" },
-				{ id: 3, label: "เเก้ไขโปรไฟล์", href: "/student/profile/edit" },
+				{ label: "สถิติข้อมูลบริษัทฝึกงาน", href: "/student/staticEm" },
+				{ label: "คลังเอกสารทั้งหมด", href: "/student/viewAllFile" },
+			];
+			sidebarItems3 = [
+				{ label: "ยื่นที่ฝึกงานเอง", href: "/student/self-enroll" },
+				{
+					label: "แก้ไขข้อมูลยื่นที่ฝึกงานเอง",
+					href: "/student/edit-self-enroll",
+				},
+				{ label: "โปรไฟล์", href: "/student/profile" },
+				{ label: "แก้ไขโปรไฟล์", href: "/student/profile/edit" },
 			];
 		} else if (user.user.role === "employer") {
 			sidebarItems1 = [
 				{
-					id: 1,
 					label: "นักศึกษาที่สมัครฝึกงาน",
 					href: "/employer/application",
 				},
 				{
-					id: 2,
 					label: "นักศึกษาที่รับฝึกงานแล้ว",
 					href: "/employer/my-students",
 				},
-				{ id: 3, label: "อัปโหลดเอกสาร", href: "/employer/upload" },
-				{ id: 4, label: "ทำแบบประเมินนักศึกษา", href: "/employer/evaluation" },
+				{ label: "ประเมินนักศึกษาฝึกงาน", href: "/employer/evaluation" },
+				{
+					label: "แบบสอบถามการฝึกงาน",
+					href: "/employer/questionnaire",
+				},
 			];
 			sidebarItems2 = [
-				{ id: 1, label: "+ ประกาศรับฝึกงาน", href: "/employer/create-job" },
-				{ id: 2, label: "โพสต์ทั้งหมด", href: "/employer/all-job" },
-				{ id: 3, label: "โปรไฟล์", href: "/employer/profile" },
-				{ id: 4, label: "เเก้ไขโปรไฟล์", href: "/employer/profile/edit" },
+				{ label: "+ ประกาศรับฝึกงาน", href: "/employer/create-job" },
+				{ label: "โพสต์ทั้งหมด", href: "/employer/all-job" },
+				{ label: "โปรไฟล์", href: "/employer/profile" },
+				{ label: "แก้ไขโปรไฟล์", href: "/employer/profile/edit" },
+			];
+		} else if (user.user.role === "head") {
+			sidebarItems1 = [
+				{ label: "อนุมัติเอกสาร", href: "/head/approve-docs" },
+				{ label: "เอกสารที่อนุมัติแล้ว", href: "/head/approved-docs" },
+			];
+			sidebarItems2 = [
+				{ label: "สถานะนักศึกษา", href: "/head/student-monitor" },
+			];
+		} else if (user.user.role === "secretary") {
+			sidebarItems1 = [
+				{ label: "ตั้งค่าเอกสาร", href: "/secretary/approve-docs" },
+				{ label: "เอกสารที่อนุมัติแล้ว", href: "/secretary/approved-docs" },
+				{
+					label: "ตั้งค่าเอกสารเบื้องต้น",
+					href: "/secretary/setup-docs",
+				},
+			];
+			sidebarItems2 = [
+				{ label: "+ ประชาสัมพันธ์", href: "/secretary/create-news" },
+				{ label: "แก้ไขกำหนดการ", href: "/secretary/update-scheduler" },
+				{ label: "อัปโหลดรายชื่อนักศึกษา", href: "/secretary/upload-csv" },
+			];
+			sidebarItems3 = [
+				{
+					label: "อนุมัติผู้ใช้ (บริษัท/หน่วยงาน)",
+					href: "/secretary/employer-list",
+				},
+			];
+		} else if (user.user.role === "teacher") {
+			sidebarItems1 = [
+				{ label: "สถานะนักศึกษา", href: "/teacher/student-monitor" },
+				{ label: "+ ประชาสัมพันธ์", href: "/teacher/create-news" },
+			];
+			sidebarItems2 = [
+				{ label: "แก้ไขกำหนดการ", href: "/teacher/update-scheduler" },
+				{ label: "อัปโหลดรายชื่อนักศึกษา", href: "/teacher/upload-csv" },
+			];
+			sidebarItems3 = [
+				{
+					label: "อนุมัติผู้ใช้ (บริษัท/หน่วยงาน)",
+					href: "/teacher/employer-list",
+				},
+				{
+					label: "ส่งออกข้อมูลแบบประเมิน",
+					href: "/teacher/export-eval",
+				},
 			];
 		}
 	} else {
@@ -108,17 +185,27 @@ export default function Sidebar() {
 			} d-flex flex-column flex-shrink-0 p-3 bg-light`}
 		>
 			<ul className="nav nav-pills flex-column mb-auto">
-				{sidebarItems1.map((item) => (
-					<li className="nav-item my-1" key={item.id}>
+				{sidebarItems1.map((item, index) => (
+					<li className="nav-item my-1" key={index}>
 						<CustomLink to={item.href}>{item.label}</CustomLink>
 					</li>
 				))}
 				<hr />
-				{sidebarItems2.map((item) => (
-					<li className="nav-item my-1" key={item.id}>
+				{sidebarItems2.map((item, index) => (
+					<li className="nav-item my-1" key={index}>
 						<CustomLink to={item.href}>{item.label}</CustomLink>
 					</li>
 				))}
+				{sidebarItems3.length !== 0 && (
+					<>
+						<hr />
+						{sidebarItems3.map((item, index) => (
+							<li className="nav-item my-1" key={index}>
+								<CustomLink to={item.href}>{item.label}</CustomLink>
+							</li>
+						))}
+					</>
+				)}
 			</ul>
 		</aside>
 	) : null;

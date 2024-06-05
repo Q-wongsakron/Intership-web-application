@@ -1,7 +1,10 @@
 const { Sequelize } = require("sequelize");
-
-const sequelize = new Sequelize("internship2", "root", "", {
-  host: "localhost",
+require('dotenv').config()
+const sequelize = new Sequelize(
+  process.env.DATABASE, 
+  process.env.DB_USER, 
+  process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
   dialect: "mysql",
   define: {
     timestamps: false,
@@ -28,6 +31,12 @@ db.gen_document = require("./models/genDocModel")(sequelize, Sequelize);
 db.gen_document_self = require("./models/genDocSelfModel")(sequelize, Sequelize);
 db.edit_courtesy = require("./models/editCourtesyModel")(sequelize, Sequelize);
 db.self_enroll = require("./models/selfEnrollModel")(sequelize,Sequelize);
+db.std_eval = require("./models/stdEvalModel")(sequelize,Sequelize);
+db.emp_question = require("./models/emQuestionnairModel")(sequelize,Sequelize);
+db.emp_eval = require("./models/emEvalModel")(sequelize,Sequelize);
+db.employee_tu = require("./models/employeeTuModel")(sequelize,Sequelize);
+db.schedule = require("./models/scheduleModel")(sequelize,Sequelize);
+db.reset_tokens = require("./models/resetTokensModel")(sequelize,Sequelize);
 
 db.employer.hasMany(db.posts_job, {
   foreignKey: { name: "emp_id", field: "emp_id" },
@@ -75,11 +84,6 @@ db.student.hasOne(db.edit_courtesy, {
 db.edit_courtesy.belongsTo(db.student, { foreignKey: "std_id" }); 
 
 
-// news
-db.admin.hasMany(db.news,{
-  foreignKey: { name: "teacher_id", field: "teacher_id" },
-})
-db.news.belongsTo(db.admin, { foreignKey: "teacher_id" });
 
 // Apply Part
 db.employer.hasMany(db.apply, {

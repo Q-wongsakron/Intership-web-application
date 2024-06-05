@@ -7,7 +7,7 @@ import PageNotFound from "../pages/PageNotFound";
 import Sidebar from "../components/Sidebar";
 
 const TeacherRoute = ({ children }) => {
-	const { user } = useSelector((state) => ({ ...state }));
+	const user = useSelector((state) => state.user);
 
 	const location = useLocation();
 

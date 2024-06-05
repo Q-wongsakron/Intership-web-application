@@ -24,6 +24,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(50),
         allowNull: false,
         field: "academic_year",
+      },
+      status: {
+        type: Sequelize.STRING(100),
+        allowNull: true,
+        field: "status",
       }
     },
     {

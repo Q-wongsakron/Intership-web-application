@@ -16,7 +16,7 @@ const CreateJob = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { user } = useSelector((state) => ({ ...state }));
+  const user = useSelector((state) => state.user);
 
   const [jobTitle, setJobTitle] = useState(location.state?.job_title || "");
   const [locationValue, setLocationValue] = useState(
@@ -38,6 +38,9 @@ const CreateJob = () => {
     location.state?.dateEndPost || new Date()
   );
   const [content, setContent] = useState(location.state?.desc || "");
+  const [newCategory, setNewCategory] = useState("");
+  const [newCategoryValue, setNewCategoryValue] = useState("");
+  const [categoryValues, setCategoryValues] = useState({});
 
   useEffect(() => {
     setContent(location.state?.desc || "");
@@ -59,12 +62,13 @@ const CreateJob = () => {
         cats: categories,
         dateStartPost,
         dateEndPost,
+        categoryValues,
       };
       console.log(postData);
       if (location.state) {
         await axios.put(`/posts/${location.state.id}`, postData);
       } else {
-        await axios.post("http://localhost:5500/api/addPost", postData, {
+        await axios.post(import.meta.env.VITE_APP_API+"/addPost", postData, {
           headers: {
             authtoken: user.user.token,
           },
@@ -78,13 +82,36 @@ const CreateJob = () => {
   };
 
   const handleCategoryChange = (category) => {
-    setCategories((prevCategories) => {
-      if (prevCategories.includes(category)) {
-        return prevCategories.filter((cat) => cat !== category);
-      } else {
-        return [...prevCategories, category];
-      }
-    });
+    if (categories.includes(category)) {
+      setCategories((prevCategories) =>
+        prevCategories.filter((cat) => cat !== category)
+      );
+      setCategoryValues((prevValues) => {
+        const updatedValues = { ...prevValues };
+        delete updatedValues[category];
+        return updatedValues;
+      });
+    } else {
+      setCategories((prevCategories) => [...prevCategories, category]);
+      setCategoryValues((prevValues) => ({
+        ...prevValues,
+        [category]: parseInt(newCategoryValue),
+      }));
+    }
+  };
+
+  const handleAddCategory = () => {
+    if (newCategory.trim() !== "") {
+      const newCategoryName = newCategory.trim();
+      const newCategoryVal = parseInt(newCategoryValue);
+      setCategories((prevCategories) => [...prevCategories, newCategoryName]);
+      setCategoryValues((prevValues) => ({
+        ...prevValues,
+        [newCategoryName]: newCategoryVal,
+      }));
+      setNewCategory("");
+      setNewCategoryValue("");
+    }
   };
 
   const handlePreview = (e) => {
@@ -103,11 +130,13 @@ const CreateJob = () => {
       cats: categories,
       dateStartPost,
       dateEndPost,
+      categoryValues,
     };
 
     // Navigate to the preview page
     navigate("/employer/preview", { state: postData });
   };
+
   return (
     <div className="container mt-5">
       <div className="row">
@@ -261,15 +290,44 @@ const CreateJob = () => {
             <div className="card-body">
               <h5 className="card-title">Categories</h5>
 
-              {[
-                "Frontend",
-                "Backend",
-                "Datasci",
-                "Depops",
-                "ITsupport",
-                "ITsecurity",
-              ].map((cat) => (
-                <div key={cat} className="form-check">
+              <div className="form-group">
+                <input
+                  list="categoriesList"
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Add New Category"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                />
+                <input
+                  type="number"
+                  className="form-control mb-2"
+                  placeholder="Value"
+                  value={newCategoryValue}
+                  onChange={(e) => setNewCategoryValue(e.target.value)}
+                />
+                <datalist id="categoriesList">
+                  {[
+                    "Frontend",
+                    "Backend",
+                    "Datasci",
+                    "Depops",
+                    "ITsupport",
+                    "ITsecurity",
+                  ].map((cat) => (
+                    <option key={cat} value={cat} />
+                  ))}
+                </datalist>
+                <button
+                  className="btn btn-primary btn-sm mb-2"
+                  onClick={handleAddCategory}
+                >
+                  เพิ่มตำแหน่งงาน
+                </button>
+              </div>
+
+              {categories.map((cat, index) => (
+                <div key={index} className="form-check">
                   <input
                     type="checkbox"
                     className="form-check-input"
@@ -278,7 +336,7 @@ const CreateJob = () => {
                     onChange={() => handleCategoryChange(cat)}
                   />
                   <label className="form-check-label" htmlFor={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    {cat} - {categoryValues[cat]}
                   </label>
                 </div>
               ))}

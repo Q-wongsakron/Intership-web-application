@@ -5,12 +5,21 @@ import btn from "../components/btn.module.css";
 import NewsComponent from "../components/NewsComponent";
 import Loading from "../components/Loading";
 import PageNotFound from "./PageNotFound";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+	faChevronLeft,
+	faChevronRight,
+	faSearch,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+
 function News() {
-	const [data, setData] = useState(null);
+	const [data, setData] = useState([]);
 	const fetchData = async () => {
 		try {
-			const response = await axios.get("http://localhost:5500/api/allNews");
+			const response = await axios.get(
+				import.meta.env.VITE_APP_API + "/allNews"
+			);
 			setData(response.data);
 		} catch (error) {
 			console.error("Error fetching data", error);
@@ -88,9 +97,9 @@ function News() {
 							<PostIsNull />
 						)} */}
 
-						{data ? (
+						{data.length ? (
 							<>
-								{data.map((item) => (
+								{/* {data.map((item) => (
 									<div key={item.news_id}>
 										<div className="mb-4">
 											<NewsComponent
@@ -103,7 +112,8 @@ function News() {
 										</div>
 										<hr className="hr-grey" />
 									</div>
-								))}
+								))} */}
+								<PaginationBar data={data} />
 							</>
 						) : (
 							<PostIsNull />
@@ -112,9 +122,9 @@ function News() {
 						{/* <hr className="hr-blue d-block d-md-none" /> */}
 					</div>
 
-					<div className="col-12 col-lg-3 my-3 my-md-0 container-card">
-						{/* <p className="p-3">Search Filter or News</p> */}
-					</div>
+					{/* <div className="col-12 col-lg-3 my-3 my-md-0 container-card">
+						<p className="p-3">Search Filter or News</p>
+					</div> */}
 				</div>
 			</div>
 		</>
@@ -124,18 +134,165 @@ function News() {
 		return (
 			<div className="d-flex flex-column justify-content-center align-items-center p-5 min-vh-100 text-muted bg-light container-card">
 				<h4>ยังไม่มีข่าวประชาสัมพันธ์</h4>
-				{/* <small>
-					- นักศึกษา สามารถยื่นฝึกงานเองได้ที่ :{" "}
-					<span className="text-light-blue">
-						<Link to={"/student/self-enroll"}>ยื่นที่ฝึกงานเอง</Link>
-					</span>
-				</small>
-				<small>
-					- บริษัท/หน่วยงาน สามารถประกาศรับนักศึกษาฝึกงานได้ที่ :{" "}
-					<span className="text-light-blue">
-						<Link to={"/employer/create-job"}>+ ประกาศรับฝึกงาน</Link>
-					</span>
-				</small> */}
+			</div>
+		);
+	}
+
+	function PaginationBar({ data }) {
+		// console.log(data);
+		const sliceReverseData = data.slice().reverse();
+		// console.log(sliceReverseData);
+
+		const [currentPage, setCurrentPage] = useState(1);
+		const itemsPerPage = 5;
+
+		const indexOfLastItem = currentPage * itemsPerPage;
+		const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+		const firstIndexOfPage = indexOfFirstItem + 1;
+		const lastIndexOfPage = Math.min(indexOfLastItem, data.length);
+
+		const currentItems = sliceReverseData.slice(
+			indexOfFirstItem,
+			indexOfLastItem
+		);
+		const totalPages = Math.ceil(sliceReverseData.length / itemsPerPage);
+
+		const handlePageChange = (newPage) => {
+			if (newPage >= 1 && newPage <= totalPages) {
+				setCurrentPage(newPage);
+			}
+		};
+
+		const calculatePageNumbers = () => {
+			const pageNumbers = [];
+			const pageRange = 3;
+			const startPage = Math.max(1, currentPage - pageRange);
+			const endPage = Math.min(totalPages, currentPage + pageRange);
+
+			if (startPage > 1) {
+				pageNumbers.push(1);
+				if (startPage > 2) {
+					pageNumbers.push("...");
+				}
+			}
+
+			for (let i = startPage; i <= endPage; i++) {
+				pageNumbers.push(i);
+			}
+
+			if (endPage < totalPages) {
+				if (endPage < totalPages - 1) {
+					pageNumbers.push("...");
+				}
+				pageNumbers.push(totalPages);
+			}
+
+			return pageNumbers;
+		};
+
+		const pageNumbers = calculatePageNumbers();
+
+		return (
+			<div>
+				{currentItems.map((item, index) => (
+					<div key={index} className="mb-2">
+						<div className="mb-4">
+							<NewsComponent
+								id={item.news_id}
+								cover_img={item.cover_img}
+								title={item.topic}
+								content={item.detail}
+								postedTime={item.postedTime}
+							/>
+						</div>
+						<hr className="hr-grey" />
+					</div>
+				))}
+
+				<div className="d-flex justify-content-between">
+					<div>{`${firstIndexOfPage} - ${lastIndexOfPage} จากทั้งหมด ${data.length} รายการ`}</div>
+
+					<div
+						className="btn-toolbar"
+						role="toolbar"
+						aria-label="Toolbar with button groups"
+					>
+						<div
+							className="btn-group btn-group-sm"
+							role="group"
+							aria-label="First group"
+						>
+							<button
+								type="button"
+								className="btn btn-outline-secondary"
+								disabled={currentPage === 1}
+								onClick={() => handlePageChange(currentPage - 1)}
+								style={{
+									cursor: "pointer",
+								}}
+							>
+								<FontAwesomeIcon icon={faChevronLeft} />
+							</button>
+							{pageNumbers.map((pageNumber, index) => (
+								<React.Fragment key={index}>
+									{pageNumber === currentPage ? (
+										<>
+											<button
+												type="button"
+												className="btn btn-dark"
+												onClick={() =>
+													typeof pageNumber === "number"
+														? handlePageChange(pageNumber)
+														: null
+												}
+												style={{
+													cursor:
+														typeof pageNumber === "number"
+															? "pointer"
+															: "default",
+												}}
+											>
+												{pageNumber}
+											</button>
+										</>
+									) : (
+										<>
+											<button
+												type="button"
+												className="btn btn-outline-secondary"
+												onClick={() =>
+													typeof pageNumber === "number"
+														? handlePageChange(pageNumber)
+														: null
+												}
+												style={{
+													cursor:
+														typeof pageNumber === "number"
+															? "pointer"
+															: "default",
+												}}
+											>
+												{pageNumber}
+											</button>
+										</>
+									)}
+								</React.Fragment>
+							))}
+							<button
+								type="button"
+								className="btn btn-outline-secondary"
+								disabled={currentPage === totalPages}
+								onClick={() => handlePageChange(currentPage + 1)}
+								style={{
+									cursor: "pointer",
+								}}
+							>
+								<FontAwesomeIcon icon={faChevronRight} />
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		);
 	}
